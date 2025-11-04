@@ -1,0 +1,170 @@
+<p>dashboard works!</p>
+<div class="container mx-auto p-6">
+      <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+
+      @if (loading()) {
+        <div class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      } @else {
+        <!-- Estadísticas principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Total</p>
+                <p class="text-3xl font-bold text-gray-900">{{ statistics()?.total || 0 }}</p>
+              </div>
+              <div class="text-4xl">📊</div>
+            </div>
+          </div>
+
+          <div class="bg-blue-50 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-blue-700 mb-1">Abiertos</p>
+                <p class="text-3xl font-bold text-blue-900">{{ statistics()?.open || 0 }}</p>
+              </div>
+              <div class="text-4xl">🔵</div>
+            </div>
+          </div>
+
+          <div class="bg-yellow-50 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-yellow-700 mb-1">En Progreso</p>
+                <p class="text-3xl font-bold text-yellow-900">{{ statistics()?.in_progress || 0 }}</p>
+              </div>
+              <div class="text-4xl">⚡</div>
+            </div>
+          </div>
+
+          <div class="bg-green-50 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-green-700 mb-1">Resueltos</p>
+                <p class="text-3xl font-bold text-green-900">{{ statistics()?.resolved || 0 }}</p>
+              </div>
+              <div class="text-4xl">✅</div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-700 mb-1">Cerrados</p>
+                <p class="text-3xl font-bold text-gray-900">{{ statistics()?.closed || 0 }}</p>
+              </div>
+              <div class="text-4xl">🔒</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <!-- Por Prioridad -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Tickets por Prioridad</h2>
+            @if (statistics()?.by_priority && statistics()!.by_priority.length > 0) {
+              <div class="space-y-3">
+                @for (item of statistics()!.by_priority; track item.priority__name) {
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="font-medium text-gray-700">
+                      {{ getPriorityLabel(item.priority__name) }}
+                    </span>
+                    <span class="text-2xl font-bold text-gray-900">{{ item.count }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-gray-500">No hay datos disponibles</p>
+            }
+          </div>
+
+          <!-- Por Categoría -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Tickets por Categoría</h2>
+            @if (statistics()?.by_category && statistics()!.by_category.length > 0) {
+              <div class="space-y-3">
+                @for (item of statistics()!.by_category; track item.category__name) {
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="font-medium text-gray-700">{{ item.category__name }}</span>
+                    <span class="text-2xl font-bold text-gray-900">{{ item.count }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-gray-500">No hay datos disponibles</p>
+            }
+          </div>
+        </div>
+
+        <!-- Mis tickets y asignados -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Mis tickets -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold text-gray-900">Mis Tickets</h2>
+              <a routerLink="/tickets" class="text-blue-600 hover:text-blue-800 text-sm">Ver todos →</a>
+            </div>
+            @if (myTickets().length > 0) {
+              <div class="space-y-2">
+                @for (ticket of myTickets().slice(0, 5); track ticket.id) {
+                  <a 
+                    [routerLink]="['/tickets', ticket.id]"
+                    class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="font-medium text-gray-900">{{ ticket.title }}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                          {{ ticket.ticket_number }} • {{ ticket.created_at | date:'short' }}
+                        </div>
+                      </div>
+                      <span 
+                        class="px-2 py-1 text-xs font-semibold rounded-full ml-2"
+                        [class]="getStatusClass(ticket.status.name)">
+                        {{ ticket.status.display_name }}
+                      </span>
+                    </div>
+                  </a>
+                }
+              </div>
+            } @else {
+              <p class="text-gray-500 text-center py-4">No tienes tickets creados</p>
+            }
+          </div>
+
+          <!-- Asignados a mí -->
+          <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-bold text-gray-900">Asignados a Mí</h2>
+              <a routerLink="/tickets" class="text-blue-600 hover:text-blue-800 text-sm">Ver todos →</a>
+            </div>
+            @if (assignedTickets().length > 0) {
+              <div class="space-y-2">
+                @for (ticket of assignedTickets().slice(0, 5); track ticket.id) {
+                  <a 
+                    [routerLink]="['/tickets', ticket.id]"
+                    class="block p-3 hover:bg-gray-50 rounded-lg transition">
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <div class="font-medium text-gray-900">{{ ticket.title }}</div>
+                        <div class="text-xs text-gray-500 mt-1">
+                          {{ ticket.ticket_number }} • por {{ ticket.created_by.username }}
+                        </div>
+                      </div>
+                      <span 
+                        class="px-2 py-1 text-xs font-semibold rounded-full text-white ml-2"
+                        [style.background-color]="ticket.priority.color">
+                        {{ ticket.priority.display_name }}
+                      </span>
+                    </div>
+                  </a>
+                }
+              </div>
+            } @else {
+              <p class="text-gray-500 text-center py-4">No tienes tickets asignados</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
