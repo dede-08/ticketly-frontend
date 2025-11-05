@@ -5,10 +5,27 @@ import { TicketDetailComponent } from './components/ticket-detail/ticket-detail.
 import { TicketFormComponent } from './components/ticket-form/ticket-form.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'tickets', component: TicketListComponent },
-  { path: 'tickets/new', component: TicketFormComponent },
-  { path: 'tickets/:id', component: TicketDetailComponent },
-  { path: 'tickets/:id/edit', component: TicketFormComponent },
+  { path: '', 
+    redirectTo: '/dashboard', 
+    pathMatch: 'full' 
+  },
+  { path: 'dashboard', 
+    component: DashboardComponent 
+  },
+  { path: 'tickets', 
+    component: TicketListComponent 
+  },
+  { path: 'tickets/new', 
+    component: TicketFormComponent 
+  },
+  { path: 'tickets/:id', 
+    component: TicketDetailComponent 
+  },
+  { path: 'tickets/:id/edit', 
+    component: TicketFormComponent 
+  },
+  {
+    path: '**',
+    redirectTo: '/dashboard'
+  }
 ];

@@ -1,1 +1,147 @@
 <p>ticket-list works!</p>
+<div class="container mx-auto p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Tickets</h1>
+        <button 
+          routerLink="/tickets/new"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+          + Nuevo Ticket
+        </button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm"
+              (input)="applyFilters()"
+              placeholder="Buscar por título..."
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+            <select 
+              [(ngModel)]="filterStatus"
+              (change)="applyFilters()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">Todos</option>
+              @for (status of statuses(); track status.id) {
+                <option [value]="status.id">{{ status.display_name }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Prioridad</label>
+            <select 
+              [(ngModel)]="filterPriority"
+              (change)="applyFilters()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">Todas</option>
+              @for (priority of priorities(); track priority.id) {
+                <option [value]="priority.id">{{ priority.display_name }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+            <select 
+              [(ngModel)]="filterCategory"
+              (change)="applyFilters()"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+              <option value="">Todas</option>
+              @for (category of categories(); track category.id) {
+                <option [value]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de tickets -->
+      @if (loading()) {
+        <div class="text-center py-12">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p class="mt-4 text-gray-600">Cargando tickets...</p>
+        </div>
+      } @else if (tickets().length === 0) {
+        <div class="bg-white rounded-lg shadow-md p-12 text-center">
+          <p class="text-gray-500 text-lg">No se encontraron tickets</p>
+        </div>
+      } @else {
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Ticket
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Título
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Categoría
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Prioridad
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Asignado
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Fecha
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (ticket of tickets(); track ticket.id) {
+                <tr 
+                  [routerLink]="['/tickets', ticket.id]"
+                  class="hover:bg-gray-50 cursor-pointer transition">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm font-medium text-blue-600">{{ ticket.ticket_number }}</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900">{{ ticket.title }}</div>
+                    @if (ticket.comments_count) {
+                      <div class="text-xs text-gray-500">💬 {{ ticket.comments_count }} comentarios</div>
+                    }
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-gray-900">{{ ticket.category.name }}</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span 
+                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
+                      [style.background-color]="ticket.priority.color">
+                      {{ ticket.priority.display_name }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span 
+                      class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                      [class]="getStatusClass(ticket.status.name)">
+                      {{ ticket.status.display_name }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ ticket.assigned_to ? ticket.assigned_to.username : 'Sin asignar' }}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ ticket.created_at | date:'short' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
