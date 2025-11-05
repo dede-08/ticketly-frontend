@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { env } from '../../app/environments/.env';
+import { environment as env } from '../../environments/environment';
 
 export interface User {
   id: number;
