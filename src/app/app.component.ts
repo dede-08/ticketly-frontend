@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { AuthService } from './services/auth.service';
+import { FooterComponent } from './components/footer/footer.component';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +12,9 @@ import { AuthService } from './services/auth.service';
     CommonModule, 
     RouterOutlet, 
     RouterModule, 
-    NavbarComponent],
+    NavbarComponent,
+    FooterComponent
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -19,9 +22,4 @@ export class AppComponent {
   authService = inject(AuthService);
   title = 'ticketly-frontend';
 
-  logout(): void {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-      this.authService.logout();
-    }
-  }
 }
