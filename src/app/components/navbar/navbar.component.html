@@ -1,0 +1,56 @@
+<div class="min-h-screen bg-gray-100">
+      @if (authService.isAuthenticated()) {
+        <!-- Navbar -->
+        <nav class="bg-white shadow-lg">
+          <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-8">
+                <a routerLink="/dashboard" class="flex items-center space-x-2">
+                  <span class="text-3xl">🎫</span>
+                  <h1 class="text-2xl font-bold text-gray-800">
+                    Ticketly
+                  </h1>
+                </a>
+                <div class="hidden md:flex space-x-4">
+                  <a 
+                    routerLink="/dashboard" 
+                    routerLinkActive="text-blue-600 border-b-2 border-blue-600"
+                    [routerLinkActiveOptions]="{exact: true}"
+                    class="text-gray-600 hover:text-blue-600 transition pb-1">
+                    Dashboard
+                  </a>
+                  <a 
+                    routerLink="/tickets" 
+                    routerLinkActive="text-blue-600 border-b-2 border-blue-600"
+                    class="text-gray-600 hover:text-blue-600 transition pb-1">
+                    Tickets
+                  </a>
+                </div>
+              </div>
+              
+              <div class="flex items-center space-x-4">
+                @if (authService.currentUser()) {
+                  <div class="flex items-center space-x-2 text-sm text-gray-600">
+                    <span class="hidden md:inline">👤</span>
+                    <span class="hidden md:inline font-medium">
+                      {{ authService.currentUser()!.first_name }} {{ authService.currentUser()!.last_name }}
+                    </span>
+                  </div>
+                }
+                
+                <button 
+                  routerLink="/tickets/new"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                  + Nuevo Ticket
+                </button>
+                
+                <button 
+                  (click)="logout()"
+                  class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                  🚪 Salir
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
+      }

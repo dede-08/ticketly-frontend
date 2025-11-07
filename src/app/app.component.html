@@ -1,2 +1,16 @@
 <app-navbar></app-navbar>
-<router-outlet></router-outlet>
+<!-- Main Content -->
+<main class="min-h-screen">
+    <router-outlet></router-outlet>
+</main>
+
+@if (authService.isAuthenticated()) {
+<!-- Footer -->
+<footer class="bg-white border-t mt-auto">
+    <div class="container mx-auto px-6 py-4">
+        <p class="text-center text-gray-600 text-sm">
+            © 2024 Ticketly - Sistema de Gestión de Tickets
+        </p>
+    </div>
+</footer>
+}

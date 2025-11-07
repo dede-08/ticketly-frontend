@@ -1,31 +1,47 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { TicketListComponent } from './components/ticket-list/ticket-list.component';
-import { TicketDetailComponent } from './components/ticket-detail/ticket-detail.component';
-import { TicketFormComponent } from './components/ticket-form/ticket-form.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', 
-    redirectTo: '/dashboard', 
-    pathMatch: 'full' 
+  {
+    path: 'login',
+    loadComponent: () => import('./components/login/login.component').then(m => m.LoginComponent)
   },
-  { path: 'dashboard', 
-    component: DashboardComponent 
+  {
+    path: 'register',
+    loadComponent: () => import('./components/register/register.component').then(m => m.RegisterComponent)
   },
-  { path: 'tickets', 
-    component: TicketListComponent 
+  {
+    path: '',
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
   },
-  { path: 'tickets/new', 
-    component: TicketFormComponent 
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
   },
-  { path: 'tickets/:id', 
-    component: TicketDetailComponent 
+  {
+    path: 'tickets',
+    loadComponent: () => import('./components/ticket-list/ticket-list.component').then(m => m.TicketListComponent),
+    canActivate: [authGuard]
   },
-  { path: 'tickets/:id/edit', 
-    component: TicketFormComponent 
+  {
+    path: 'tickets/new',
+    loadComponent: () => import('./components/ticket-form/ticket-form.component').then(m => m.TicketFormComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tickets/:id',
+    loadComponent: () => import('./components/ticket-detail/ticket-detail.component').then(m => m.TicketDetailComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'tickets/:id/edit',
+    loadComponent: () => import('./components/ticket-form/ticket-form.component').then(m => m.TicketFormComponent),
+    canActivate: [authGuard]
   },
   {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: '/login'
   }
 ];
