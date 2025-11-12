@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment as env } from '../../environments/environment';
+import { environment } from '../../environments/environment';
 
 export interface User {
   id: number;
@@ -53,6 +53,22 @@ export interface TicketHistory {
   created_at: string;
 }
 
+export interface Attachment {
+  id: number;
+  ticket: number;
+  uploaded_by: User;
+  file: string;
+  file_url: string;
+  filename: string;
+  file_size: number;
+  file_size_display: string;
+  file_type: string;
+  file_extension: string;
+  is_image: boolean;
+  uploaded_at: string;
+  description: string;
+}
+
 export interface Ticket {
   id: number;
   ticket_number: string;
@@ -99,7 +115,7 @@ export interface TicketStatistics {
 })
 export class TicketService {
   private http = inject(HttpClient);
-  private apiUrl = `${env.apiUrl}/api`;
+  private apiUrl = `${environment.apiUrl}/api`;
 
   getTickets(params?: any): Observable<Ticket[]> {
     let httpParams = new HttpParams();
