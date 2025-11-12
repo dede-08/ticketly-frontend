@@ -1,170 +1,255 @@
-<p>ticket-detail works!</p>
- <div class="container mx-auto p-6">
-      @if (loading()) {
-        <div class="text-center py-12">
-          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      } @else if (ticket()) {
-        <div class="max-w-6xl mx-auto">
-          <!-- Header -->
-          <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div class="flex justify-between items-start mb-4">
-              <div>
-                <div class="flex items-center space-x-3 mb-2">
-                  <span class="text-sm font-medium text-gray-500">{{ ticket()!.ticket_number }}</span>
-                  <span 
-                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
-                    [class]="getStatusClass(ticket()!.status.name)">
-                    {{ ticket()!.status.display_name }}
-                  </span>
-                  <span 
-                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
-                    [style.background-color]="ticket()!.priority.color">
-                    {{ ticket()!.priority.display_name }}
-                  </span>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-900">{{ ticket()!.title }}</h1>
-              </div>
-              <div class="flex space-x-2">
-                <button 
-                  [routerLink]="['/tickets', ticket()!.id, 'edit']"
-                  class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-                  ✏️ Editar
-                </button>
-                <button 
-                  (click)="deleteTicket()"
-                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                  🗑️ Eliminar
-                </button>
-              </div>
-            </div>
-
-            <!-- Metadata -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 border-t pt-4">
-              <div>
-                <span class="font-medium">Categoría:</span> {{ ticket()!.category.name }}
-              </div>
-              <div>
-                <span class="font-medium">Creado por:</span> {{ ticket()!.created_by.username }}
-              </div>
-              <div>
-                <span class="font-medium">Asignado a:</span> 
-                {{ ticket()!.assigned_to ? ticket()!.assigned_to!.username : 'Sin asignar' }}
-              </div>
-              <div>
-                <span class="font-medium">Creado:</span> {{ ticket()!.created_at | date:'medium' }}
-              </div>
-              @if (ticket()!.tags.length > 0) {
-                <div class="col-span-2">
-                  <span class="font-medium">Etiquetas:</span>
-                  @for (tag of ticket()!.tags; track tag) {
-                    <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                      {{ tag }}
-                    </span>
-                  }
-                </div>
-              }
-            </div>
+<div class="container mx-auto p-6">
+  @if (loading()) {
+  <div class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+  } @else if (ticket()) {
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <div class="flex items-center space-x-3 mb-2">
+            <span class="text-sm font-medium text-gray-500">{{ ticket()!.ticket_number }}</span>
+            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+              [class]="getStatusClass(ticket()!.status.name)">
+              {{ ticket()!.status.display_name }}
+            </span>
+            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white"
+              [style.background-color]="ticket()!.priority.color">
+              {{ ticket()!.priority.display_name }}
+            </span>
           </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Descripción y Comentarios -->
-            <div class="lg:col-span-2 space-y-6">
-              <!-- Descripción -->
-              <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Descripción</h2>
-                <p class="text-gray-700 whitespace-pre-wrap">{{ ticket()!.description }}</p>
-              </div>
-
-              <!-- Comentarios -->
-              <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">
-                  Comentarios ({{ ticket()!.comments?.length || 0 }})
-                </h2>
-
-                <!-- Nuevo comentario -->
-                <div class="mb-6">
-                  <textarea 
-                    [(ngModel)]="newComment"
-                    rows="3"
-                    placeholder="Escribe un comentario..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
-                  <div class="flex justify-between items-center mt-2">
-                    <label class="flex items-center text-sm text-gray-600">
-                      <input 
-                        type="checkbox" 
-                        [(ngModel)]="isInternalComment"
-                        class="mr-2 rounded">
-                      Comentario interno (solo equipo)
-                    </label>
-                    <button 
-                      (click)="addComment()"
-                      [disabled]="!newComment.trim() || addingComment()"
-                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition">
-                      {{ addingComment() ? 'Enviando...' : 'Comentar' }}
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Lista de comentarios -->
-                <div class="space-y-4">
-                  @for (comment of ticket()!.comments; track comment.id) {
-                    <div class="border-l-4 pl-4 py-2"
-                         [class.border-gray-300]="!comment.is_internal"
-                         [class.border-yellow-400]="comment.is_internal">
-                      <div class="flex justify-between items-start mb-2">
-                        <div>
-                          <span class="font-medium text-gray-900">{{ comment.user.username }}</span>
-                          @if (comment.is_internal) {
-                            <span class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded">
-                              Interno
-                            </span>
-                          }
-                        </div>
-                        <span class="text-xs text-gray-500">
-                          {{ comment.created_at | date:'short' }}
-                        </span>
-                      </div>
-                      <p class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
-                    </div>
-                  } @empty {
-                    <p class="text-gray-500 text-center py-4">No hay comentarios aún</p>
-                  }
-                </div>
-              </div>
-            </div>
-
-            <!-- Sidebar - Historial -->
-            <div class="lg:col-span-1">
-              <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Historial de Cambios</h2>
-                
-                @if (ticket()!.history && ticket()!.history!.length > 0) {
-                  <div class="space-y-3">
-                    @for (item of ticket()!.history; track item.id) {
-                      <div class="border-l-2 border-blue-200 pl-3 py-1">
-                        <div class="text-xs text-gray-500 mb-1">
-                          {{ item.created_at | date:'short' }}
-                        </div>
-                        <div class="text-sm">
-                          <span class="font-medium">{{ item.user.username }}</span>
-                          <span class="text-gray-600"> cambió </span>
-                          <span class="font-medium">{{ getFieldLabel(item.field_name) }}</span>
-                        </div>
-                        <div class="text-xs text-gray-600 mt-1">
-                          <span class="line-through">{{ item.old_value || 'N/A' }}</span>
-                          <span class="mx-1">→</span>
-                          <span class="font-medium">{{ item.new_value || 'N/A' }}</span>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                } @else {
-                  <p class="text-gray-500 text-sm">Sin cambios registrados</p>
-                }
-              </div>
-            </div>
-          </div>
+          <h1 class="text-3xl font-bold text-gray-900">{{ ticket()!.title }}</h1>
         </div>
-      }
+        <div class="flex space-x-2">
+          <button [routerLink]="['/tickets', ticket()!.id, 'edit']"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+            ✏️ Editar
+          </button>
+          <button (click)="deleteTicket()"
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 border-t pt-4">
+        <div>
+          <span class="font-medium">Categoría:</span> {{ ticket()!.category.name }}
+        </div>
+        <div>
+          <span class="font-medium">Creado por:</span> {{ ticket()!.created_by.username }}
+        </div>
+        <div>
+          <span class="font-medium">Asignado a:</span>
+          {{ ticket()!.assigned_to ? ticket()!.assigned_to!.username : 'Sin asignar' }}
+        </div>
+        <div>
+          <span class="font-medium">Creado:</span> {{ ticket()!.created_at | date:'medium' }}
+        </div>
+        @if (ticket()!.tags.length > 0) {
+        <div class="col-span-2">
+          <span class="font-medium">Etiquetas:</span>
+          @for (tag of ticket()!.tags; track tag) {
+          <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+            {{ tag }}
+          </span>
+          }
+        </div>
+        }
+      </div>
     </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Descripción, Archivos y Comentarios -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Descripción -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Descripción</h2>
+          <p class="text-gray-700 whitespace-pre-wrap">{{ ticket()!.description }}</p>
+        </div>
+
+        <!-- Archivos Adjuntos -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">
+            Archivos Adjuntos ({{ ticket()!.attachments_files?.length || 0 }})
+          </h2>
+
+          <!-- Zona de Drop -->
+          <div class="border-2 border-dashed rounded-lg p-6 text-center mb-4 transition"
+            [class.border-blue-500]="isDragging()" [class.bg-blue-50]="isDragging()"
+            [class.border-gray-300]="!isDragging()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)">
+
+            @if (uploadingFile()) {
+            <div class="flex flex-col items-center">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-3"></div>
+              <p class="text-gray-600">Subiendo archivo...</p>
+            </div>
+            } @else {
+            <div class="flex flex-col items-center">
+              <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+              </svg>
+              <p class="text-gray-600 mb-2">Arrastra archivos aquí o</p>
+              <label class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                Seleccionar archivo
+                <input type="file" class="hidden" (change)="onFileSelected($event)"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt,.zip">
+              </label>
+              <p class="text-xs text-gray-500 mt-2">Máximo 10MB - PDF, DOC, XLS, imágenes, etc.</p>
+            </div>
+            }
+          </div>
+
+          @if (uploadError()) {
+          <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+            <p class="text-sm text-red-600">{{ uploadError() }}</p>
+          </div>
+          }
+
+          <!-- Lista de archivos -->
+          @if (ticket()!.attachments_files && ticket()!.attachments_files!.length > 0) {
+          <div class="space-y-3">
+            @for (file of ticket()!.attachments_files; track file.id) {
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+              <div class="flex items-center space-x-3 flex-1">
+                <!-- Icono según tipo de archivo -->
+                @if (file.is_image) {
+                <img [src]="file.file_url" [alt]="file.filename" class="w-12 h-12 object-cover rounded cursor-pointer"
+                  (click)="viewImage(file.file_url)">
+                } @else {
+                <div class="w-12 h-12 bg-blue-100 rounded flex items-center justify-center">
+                  <span class="text-blue-600 font-bold text-xs">{{ file.file_extension.toUpperCase() }}</span>
+                </div>
+                }
+
+                <div class="flex-1">
+                  <p class="font-medium text-gray-900">{{ file.filename }}</p>
+                  <div class="flex items-center space-x-2 text-xs text-gray-500">
+                    <span>{{ file.file_size_display }}</span>
+                    <span>•</span>
+                    <span>{{ file.uploaded_by.username }}</span>
+                    <span>•</span>
+                    <span>{{ file.uploaded_at | date:'short' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex space-x-2">
+                <a [href]="file.file_url" download target="_blank"
+                  class="p-2 text-blue-600 hover:bg-blue-50 rounded transition" title="Descargar">
+                  ⬇️
+                </a>
+                <button (click)="deleteAttachment(file.id)" class="p-2 text-red-600 hover:bg-red-50 rounded transition"
+                  title="Eliminar">
+                  🗑️
+                </button>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="text-gray-500 text-center py-4">No hay archivos adjuntos</p>
+          }
+        </div>
+
+        <!-- Comentarios -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">
+            Comentarios ({{ ticket()!.comments?.length || 0 }})
+          </h2>
+
+          <!-- Nuevo comentario -->
+          <div class="mb-6">
+            <textarea [(ngModel)]="newComment" rows="3" placeholder="Escribe un comentario..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+            <div class="flex justify-between items-center mt-2">
+              <label class="flex items-center text-sm text-gray-600">
+                <input type="checkbox" [(ngModel)]="isInternalComment" class="mr-2 rounded">
+                Comentario interno (solo equipo)
+              </label>
+              <button (click)="addComment()" [disabled]="!newComment.trim() || addingComment()"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition">
+                {{ addingComment() ? 'Enviando...' : 'Comentar' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Lista de comentarios -->
+          <div class="space-y-4">
+            @for (comment of ticket()!.comments; track comment.id) {
+            <div class="border-l-4 pl-4 py-2" [class.border-gray-300]="!comment.is_internal"
+              [class.border-yellow-400]="comment.is_internal">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <span class="font-medium text-gray-900">{{ comment.user.username }}</span>
+                  @if (comment.is_internal) {
+                  <span class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded">
+                    Interno
+                  </span>
+                  }
+                </div>
+                <span class="text-xs text-gray-500">
+                  {{ comment.created_at | date:'short' }}
+                </span>
+              </div>
+              <p class="text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+            </div>
+            } @empty {
+            <p class="text-gray-500 text-center py-4">No hay comentarios aún</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar - Historial -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Historial de Cambios</h2>
+
+          @if (ticket()!.history && ticket()!.history!.length > 0) {
+          <div class="space-y-3">
+            @for (item of ticket()!.history; track item.id) {
+            <div class="border-l-2 border-blue-200 pl-3 py-1">
+              <div class="text-xs text-gray-500 mb-1">
+                {{ item.created_at | date:'short' }}
+              </div>
+              <div class="text-sm">
+                <span class="font-medium">{{ item.user.username }}</span>
+                <span class="text-gray-600"> cambió </span>
+                <span class="font-medium">{{ getFieldLabel(item.field_name) }}</span>
+              </div>
+              <div class="text-xs text-gray-600 mt-1">
+                <span class="line-through">{{ item.old_value || 'N/A' }}</span>
+                <span class="mx-1">→</span>
+                <span class="font-medium">{{ item.new_value || 'N/A' }}</span>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <p class="text-gray-500 text-sm">Sin cambios registrados</p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Modal para ver imagen -->
+  @if (imagePreviewUrl()) {
+  <div class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+    (click)="closeImagePreview()">
+    <div class="max-w-4xl max-h-full">
+      <img [src]="imagePreviewUrl()" class="max-w-full max-h-screen rounded-lg" (click)="$event.stopPropagation()">
+    </div>
+    <button (click)="closeImagePreview()" class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300">
+      ×
+    </button>
+  </div>
+  }
+</div>

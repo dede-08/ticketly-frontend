@@ -87,6 +87,7 @@ export interface Ticket {
   tags: string[];
   comments?: Comment[];
   history?: TicketHistory[];
+  attachments_files?: Attachment[];
   comments_count?: number;
 }
 
@@ -117,6 +118,8 @@ export class TicketService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api`;
 
+  // ==================== TICKETS ====================
+
   getTickets(params?: any): Observable<Ticket[]> {
     let httpParams = new HttpParams();
     if (params) {
@@ -145,20 +148,6 @@ export class TicketService {
     return this.http.delete<void>(`${this.apiUrl}/tickets/${id}/`);
   }
 
-  addComment(ticketId: number, content: string, isInternal: boolean = false): Observable<Comment> {
-    return this.http.post<Comment>(
-      `${this.apiUrl}/tickets/${ticketId}/add_comment/`,
-      { content, is_internal: isInternal }
-    );
-  }
-
-  assignTicket(ticketId: number, userId: number | null): Observable<Ticket> {
-    return this.http.post<Ticket>(
-      `${this.apiUrl}/tickets/${ticketId}/assign/`,
-      { user_id: userId }
-    );
-  }
-
   getMyTickets(): Observable<Ticket[]> {
     return this.http.get<Ticket[]>(`${this.apiUrl}/tickets/my_tickets/`);
   }
@@ -171,7 +160,60 @@ export class TicketService {
     return this.http.get<TicketStatistics>(`${this.apiUrl}/tickets/statistics/`);
   }
 
-  // Categorías
+  assignTicket(ticketId: number, userId: number | null): Observable<Ticket> {
+    return this.http.post<Ticket>(
+      `${this.apiUrl}/tickets/${ticketId}/assign/`,
+      { user_id: userId }
+    );
+  }
+
+  // ==================== COMENTARIOS ====================
+
+  addComment(ticketId: number, content: string, isInternal: boolean = false): Observable<Comment> {
+    return this.http.post<Comment>(
+      `${this.apiUrl}/tickets/${ticketId}/add_comment/`,
+      { content, is_internal: isInternal }
+    );
+  }
+
+  getComments(ticketId: number): Observable<Comment[]> {
+    return this.http.get<Comment[]>(`${this.apiUrl}/comments/?ticket=${ticketId}`);
+  }
+
+  // ==================== ARCHIVOS ADJUNTOS ====================
+
+  uploadAttachment(ticketId: number, file: File, description: string = ''): Observable<Attachment> {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (description) {
+      formData.append('description', description);
+    }
+    
+    return this.http.post<Attachment>(
+      `${this.apiUrl}/tickets/${ticketId}/upload_attachment/`,
+      formData
+    );
+  }
+
+  deleteAttachment(ticketId: number, attachmentId: number): Observable<any> {
+    return this.http.request('delete', 
+      `${this.apiUrl}/tickets/${ticketId}/delete_attachment/`,
+      { 
+        body: { attachment_id: attachmentId }
+      }
+    );
+  }
+
+  getAttachments(ticketId: number): Observable<Attachment[]> {
+    return this.http.get<Attachment[]>(`${this.apiUrl}/tickets/${ticketId}/attachments/`);
+  }
+
+  downloadAttachment(fileUrl: string): void {
+    window.open(fileUrl, '_blank');
+  }
+
+  // ==================== CATEGORÍAS ====================
+
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories/`);
   }
@@ -180,18 +222,75 @@ export class TicketService {
     return this.http.post<Category>(`${this.apiUrl}/categories/`, category);
   }
 
-  // Prioridades
+  updateCategory(id: number, category: Partial<Category>): Observable<Category> {
+    return this.http.patch<Category>(`${this.apiUrl}/categories/${id}/`, category);
+  }
+
+  deleteCategory(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/categories/${id}/`);
+  }
+
+  // ==================== PRIORIDADES ====================
+
   getPriorities(): Observable<Priority[]> {
     return this.http.get<Priority[]>(`${this.apiUrl}/priorities/`);
   }
 
-  // Estados
+  // ==================== ESTADOS ====================
+
   getStatuses(): Observable<Status[]> {
     return this.http.get<Status[]>(`${this.apiUrl}/statuses/`);
   }
 
-  // Comentarios
-  getComments(ticketId: number): Observable<Comment[]> {
-    return this.http.get<Comment[]>(`${this.apiUrl}/comments/?ticket=${ticketId}`);
+  // ==================== UTILIDADES ====================
+
+  /**
+   * Valida si un archivo es del tipo permitido
+   */
+  isValidFileType(file: File): boolean {
+    const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'txt', 'zip', 'rar'];
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    return extension ? allowedExtensions.includes(extension) : false;
+  }
+
+  /**
+   * Valida si un archivo no excede el tamaño máximo (10MB)
+   */
+  isValidFileSize(file: File, maxSizeMB: number = 10): boolean {
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
+    return file.size <= maxSizeBytes;
+  }
+
+  /**
+   * Formatea el tamaño del archivo
+   */
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  /**
+   * Obtiene el icono según la extensión del archivo
+   */
+  getFileIcon(extension: string): string {
+    const icons: { [key: string]: string } = {
+      'pdf': '📄',
+      'doc': '📝',
+      'docx': '📝',
+      'xls': '📊',
+      'xlsx': '📊',
+      'txt': '📃',
+      'zip': '📦',
+      'rar': '📦',
+      'jpg': '🖼️',
+      'jpeg': '🖼️',
+      'png': '🖼️',
+      'gif': '🖼️',
+      'bmp': '🖼️'
+    };
+    return icons[extension.toLowerCase()] || '📎';
   }
 }

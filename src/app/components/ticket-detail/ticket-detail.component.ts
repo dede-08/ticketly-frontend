@@ -23,6 +23,10 @@ export class TicketDetailComponent implements OnInit {
   ticket = signal<Ticket | null>(null);
   loading = signal(true);
   addingComment = signal(false);
+  uploadingFile = signal(false);
+  uploadError = signal('');
+  isDragging = signal(false);
+  imagePreviewUrl = signal<string | null>(null);
   
   newComment = '';
   isInternalComment = false;
@@ -48,6 +52,88 @@ export class TicketDetailComponent implements OnInit {
     });
   }
 
+  // Drag & Drop handlers
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.uploadFile(files[0]);
+    }
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.uploadFile(file);
+    }
+  }
+
+  uploadFile(file: File) {
+    if (!this.ticket()) return;
+
+    // Validar tamaño (10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      this.uploadError.set('El archivo es demasiado grande. Máximo 10MB');
+      return;
+    }
+
+    this.uploadingFile.set(true);
+    this.uploadError.set('');
+
+    this.ticketService.uploadAttachment(this.ticket()!.id, file).subscribe({
+      next: (attachment) => {
+        this.uploadingFile.set(false);
+        // Recargar ticket para mostrar el nuevo archivo
+        this.loadTicket(this.ticket()!.id);
+      },
+      error: (error) => {
+        this.uploadingFile.set(false);
+        this.uploadError.set(error.error?.error || 'Error al subir el archivo');
+        console.error('Error uploading file:', error);
+      }
+    });
+  }
+
+  deleteAttachment(attachmentId: number) {
+    if (!this.ticket()) return;
+
+    if (confirm('¿Estás seguro de eliminar este archivo?')) {
+      this.ticketService.deleteAttachment(this.ticket()!.id, attachmentId).subscribe({
+        next: () => {
+          this.loadTicket(this.ticket()!.id);
+        },
+        error: (error) => {
+          console.error('Error deleting attachment:', error);
+          alert('Error al eliminar el archivo');
+        }
+      });
+    }
+  }
+
+  viewImage(url: string) {
+    this.imagePreviewUrl.set(url);
+  }
+
+  closeImagePreview() {
+    this.imagePreviewUrl.set(null);
+  }
+
   addComment() {
     if (!this.newComment.trim() || !this.ticket()) return;
 
@@ -58,7 +144,6 @@ export class TicketDetailComponent implements OnInit {
       this.isInternalComment
     ).subscribe({
       next: (comment) => {
-        // Recargar ticket para obtener el comentario actualizado
         this.loadTicket(this.ticket()!.id);
         this.newComment = '';
         this.isInternalComment = false;
