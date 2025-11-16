@@ -1,80 +1,70 @@
 <nav class="bg-white shadow-lg">
-      <div class="container mx-auto px-6 py-4">
-        <div class="flex items-center justify-between">
-          <!-- Logo y Links -->
-          <div class="flex items-center space-x-8">
-            <a routerLink="/dashboard" class="flex items-center space-x-2 hover:opacity-80 transition">
-              <span class="text-3xl">🎫</span>
-              <h1 class="text-2xl font-bold text-gray-800">
-                Ticketly
-              </h1>
-            </a>
-            
-            <div class="hidden md:flex space-x-4">
-              <a 
-                routerLink="/dashboard" 
-                routerLinkActive="text-blue-600 border-b-2 border-blue-600"
-                [routerLinkActiveOptions]="{exact: true}"
-                class="text-gray-600 hover:text-blue-600 transition pb-1 font-medium">
-                📊 Dashboard
-              </a>
-              <a 
-                routerLink="/tickets" 
-                routerLinkActive="text-blue-600 border-b-2 border-blue-600"
-                class="text-gray-600 hover:text-blue-600 transition pb-1 font-medium">
-                🎫 Tickets
-              </a>
-            </div>
-          </div>
-          
-          <!-- User Info y Acciones -->
-          <div class="flex items-center space-x-4">
-            <!-- Información del usuario -->
-            @if (authService.currentUser()) {
-              <div class="hidden md:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
-                <span class="text-2xl">👤</span>
-                <div class="flex flex-col">
-                  <span class="text-xs text-gray-500">Bienvenido</span>
-                  <span class="text-sm font-semibold text-gray-800">
-                    {{ authService.currentUser()!.first_name }} {{ authService.currentUser()!.last_name }}
-                  </span>
-                </div>
-              </div>
-            }
-            
-            <!-- Botón Nuevo Ticket -->
-            <button 
-              routerLink="/tickets/new"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium shadow-md hover:shadow-lg transform hover:scale-105">
-              <span class="hidden md:inline">+ Nuevo Ticket</span>
-              <span class="md:hidden">+</span>
-            </button>
-            
-            <!-- Botón Logout -->
-            <button 
-              (click)="logout()"
-              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium shadow-md hover:shadow-lg"
-              title="Cerrar sesión">
-              <span class="hidden md:inline">🚪 Salir</span>
-              <span class="md:hidden">🚪</span>
-            </button>
-          </div>
-        </div>
-        
-        <!-- Mobile Menu (opcional) -->
-        <div class="md:hidden mt-4 flex space-x-2">
-          <a 
-            routerLink="/dashboard" 
-            routerLinkActive="bg-blue-100 text-blue-600"
-            class="flex-1 text-center py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-100 transition">
-            Dashboard
+  <div class="container mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo y Links -->
+      <div class="flex items-center space-x-8">
+        <a routerLink="/dashboard" class="flex items-center space-x-2 hover:opacity-80 transition">
+          <span class="text-3xl">🎫</span>
+          <h1 class="text-2xl font-bold text-gray-800">
+            Ticketly
+          </h1>
+        </a>
+
+        <div class="hidden md:flex space-x-4">
+          <a routerLink="/dashboard" routerLinkActive="text-blue-600 border-b-2 border-blue-600"
+            [routerLinkActiveOptions]="{exact: true}"
+            class="text-gray-600 hover:text-blue-600 transition pb-1 font-medium">
+            📊 Dashboard
           </a>
-          <a 
-            routerLink="/tickets" 
-            routerLinkActive="bg-blue-100 text-blue-600"
-            class="flex-1 text-center py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-100 transition">
-            Tickets
+          <a routerLink="/tickets" routerLinkActive="text-blue-600 border-b-2 border-blue-600"
+            class="text-gray-600 hover:text-blue-600 transition pb-1 font-medium">
+            🎫 Tickets
           </a>
         </div>
       </div>
-    </nav>
+
+      <!-- User Info y Acciones -->
+      <div class="flex items-center space-x-4">
+        <!-- Información del usuario -->
+        @if (authService.currentUser()) {
+        <div class="hidden md:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
+          <div class="flex flex-col">
+            <span class="text-xs text-gray-500">{{ authService.currentUser()!.role || 'Usuario' }}</span>
+            <span class="text-sm font-semibold text-gray-800">
+              {{ authService.currentUser()!.first_name }} {{ authService.currentUser()!.last_name }}
+            </span>
+          </div>
+        </div>
+        }
+
+
+        <!-- Botón Nuevo Ticket -->
+        <button routerLink="/tickets/new"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium shadow-md hover:shadow-lg transform hover:scale-105">
+          <span class="hidden md:inline">+ Nuevo Ticket</span>
+          <span class="md:hidden">+</span>
+        </button>
+
+        <!-- Botón Logout -->
+        <button (click)="logout()"
+          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium shadow-md hover:shadow-lg"
+          title="Cerrar sesión">
+          <span class="hidden md:inline">🚪 Salir</span>
+          <span class="md:hidden">🚪</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Menu (opcional) -->
+    <div class="md:hidden mt-4 flex space-x-2">
+      <a routerLink="/dashboard" routerLinkActive="bg-blue-100 text-blue-600"
+        class="flex-1 text-center py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+        Dashboard
+      </a>
+      <a routerLink="/tickets" routerLinkActive="bg-blue-100 text-blue-600"
+        class="flex-1 text-center py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+        Tickets
+      </a>
+    </div>
+  </div>
+</nav>

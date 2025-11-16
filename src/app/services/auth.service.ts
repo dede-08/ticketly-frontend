@@ -11,7 +11,11 @@ export interface User {
   first_name: string;
   last_name: string;
   is_staff?: boolean;
+  is_superuser?: boolean;
   date_joined?: string;
+  groups?: Array<{ id: number; name: string }>;
+  role?: string;
+  permissions?: string[];
 }
 
 export interface AuthResponse {
