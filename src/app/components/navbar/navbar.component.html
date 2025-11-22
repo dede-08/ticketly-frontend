@@ -5,8 +5,7 @@
       <div class="flex items-center space-x-8">
         <a routerLink="/dashboard" class="flex items-center space-x-2 hover:opacity-80 transition">
           <img src="assets/images/logo_ticketly.png" alt="" style="width: 100px; height: 100px;">
-          <h1 class="text-2xl font-bold text-gray-800">
-          </h1>
+          <h1 class="text-2xl font-bold text-gray-800"></h1>
         </a>
 
         <div class="hidden md:flex space-x-4">
@@ -27,15 +26,19 @@
         <!-- Información del usuario -->
         @if (authService.currentUser()) {
         <div class="hidden md:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
+          
           <div class="flex flex-col">
-            <span class="text-xs text-gray-500">{{ authService.currentUser()!.role || '' }}</span>
+            <span class="text-xs text-gray-500">{{ authService.currentUser()!.username || 'Usuario' }}</span>
             <span class="text-sm font-semibold text-gray-800">
               {{ authService.currentUser()!.first_name }} {{ authService.currentUser()!.last_name }}
             </span>
           </div>
         </div>
+        } @else {
+        <div class="hidden md:flex items-center space-x-2 px-3 py-2 bg-yellow-100 rounded-lg">
+          <span class="text-xs text-yellow-700">Cargando usuario...</span>
+        </div>
         }
-
 
         <!-- Botón Nuevo Ticket -->
         <button routerLink="/tickets/new"
@@ -54,7 +57,7 @@
       </div>
     </div>
 
-    <!-- Mobile Menu (opcional) -->
+    <!-- Mobile Menu -->
     <div class="md:hidden mt-4 flex space-x-2">
       <a routerLink="/dashboard" routerLinkActive="bg-blue-100 text-blue-600"
         class="flex-1 text-center py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-100 transition">
@@ -65,5 +68,20 @@
         Tickets
       </a>
     </div>
+
+    <!-- Mobile User Info -->
+    @if (authService.currentUser()) {
+    <div class="md:hidden mt-4 flex items-center justify-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
+      <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+        {{ authService.currentUser()!.first_name.charAt(0) }}{{ authService.currentUser()!.last_name.charAt(0) }}
+      </div>
+      <div class="flex flex-col">
+        <span class="text-xs text-gray-500">{{ authService.currentUser()!.role || 'Usuario' }}</span>
+        <span class="text-sm font-semibold text-gray-800">
+          {{ authService.currentUser()!.first_name }} {{ authService.currentUser()!.last_name }}
+        </span>
+      </div>
+    </div>
+    }
   </div>
 </nav>
