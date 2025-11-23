@@ -1,4 +1,3 @@
-// ==================== auth.service.ts - VERSIÓN FINAL CORREGIDA ====================
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -53,18 +52,18 @@ export class AuthService {
   currentUser = signal<User | null>(null);
 
   constructor() {
-    console.log('🔧 AuthService inicializado');
-    // Cargar usuario desde localStorage inmediatamente
+    console.log('AuthService inicializado');
+    //cargar usuario desde localStorage inmediatamente
     this.loadUserFromStorage();
   }
 
-  // Cargar usuario desde localStorage (sincrónico - instantáneo)
+  //cargar usuario desde localStorage (sincrónico - instantáneo)
   private loadUserFromStorage(): void {
     const token = this.getAccessToken();
     const userStr = localStorage.getItem('current_user');
     
-    console.log('📦 Token existe:', !!token);
-    console.log('📦 Usuario en storage:', userStr);
+    console.log('Token existe:', !!token);
+    console.log('Usuario en storage:', userStr);
     
     if (token && userStr) {
       try {
@@ -72,51 +71,51 @@ export class AuthService {
         this.currentUser.set(user);
         this.currentUserSubject.next(user);
         this.isAuthenticated.set(true);
-        console.log('✅ Usuario cargado desde localStorage:', user.first_name, user.last_name);
+        console.log('Usuario cargado desde localStorage:', user.first_name, user.last_name);
       } catch (error) {
-        console.error('❌ Error al parsear usuario desde storage:', error);
+        console.error('Error al parsear usuario desde storage:', error);
         localStorage.removeItem('current_user');
       }
     } else {
-      console.log('⚠️ No hay token o usuario en localStorage');
+      console.log('No hay token o usuario en localStorage');
     }
   }
 
-  // Guardar usuario en localStorage
+  //guardar usuario en localStorage
   private saveUserToStorage(user: User): void {
     try {
       const userStr = JSON.stringify(user);
       localStorage.setItem('current_user', userStr);
-      console.log('💾 Usuario guardado en localStorage:', user);
-      console.log('💾 String guardado:', userStr);
+      console.log('Usuario guardado en localStorage:', user);
+      console.log('String guardado:', userStr);
     } catch (error) {
-      console.error('❌ Error al guardar usuario en storage:', error);
+      console.error('Error al guardar usuario en storage:', error);
     }
   }
 
   login(credentials: LoginData): Observable<AuthResponse> {
-    console.log('🔐 Intentando login...');
+    console.log('Intentando login...');
     return this.http.post<AuthResponse>(`${this.apiUrl}/login/`, credentials)
       .pipe(
         tap(response => {
-          console.log('✅ Login exitoso, tokens recibidos');
+          console.log('Login exitoso, tokens recibidos');
           this.setTokens(response.access, response.refresh);
-          // Cargar información del usuario INMEDIATAMENTE después del login
+          //cargar info del usuario despues del login
           this.loadUserInfo().subscribe({
-            next: () => console.log('✅ Usuario cargado después del login'),
-            error: (err) => console.error('❌ Error cargando usuario:', err)
+            next: () => console.log('Usuario cargado después del login'),
+            error: (err) => console.error('Error cargando usuario:', err)
           });
         })
       );
   }
 
   register(userData: RegisterData): Observable<any> {
-    console.log('📝 Intentando registro...');
+    console.log('Intentando registro...');
     return this.http.post(`${this.apiUrl}/register/`, userData)
       .pipe(
         tap((response: any) => {
           if (response.tokens) {
-            console.log('✅ Registro exitoso');
+            console.log('Registro exitoso');
             this.setTokens(response.tokens.access, response.tokens.refresh);
             this.currentUser.set(response.user);
             this.currentUserSubject.next(response.user);
@@ -134,11 +133,11 @@ export class AuthService {
       this.http.post(`${this.apiUrl}/logout/`, { refresh: refreshToken })
         .subscribe({
           next: () => {
-            console.log('✅ Logout exitoso');
+            console.log('Logout exitoso');
             this.clearSession();
           },
           error: () => {
-            console.log('⚠️ Error en logout, limpiando sesión de todas formas');
+            console.log('Error en logout, limpiando sesión de todas formas');
             this.clearSession();
           }
         });
@@ -147,28 +146,27 @@ export class AuthService {
     }
   }
 
-  // MODIFICADO: Ahora retorna Observable para poder subscribirse
   loadUserInfo(): Observable<User | null> {
-    console.log('🔄 Cargando información del usuario desde API...');
+    console.log('Cargando información del usuario desde API...');
     
     return this.http.get<User>(`${this.apiUrl}/user/`).pipe(
       tap(user => {
-        console.log('✅ Usuario recibido desde API:', user);
-        console.log('📝 first_name:', user.first_name);
-        console.log('📝 last_name:', user.last_name);
-        console.log('📝 role:', user.role);
+        console.log('Usuario recibido desde API:', user);
+        console.log('first_name:', user.first_name);
+        console.log('last_name:', user.last_name);
+        console.log('role:', user.role);
         
         this.currentUser.set(user);
         this.currentUserSubject.next(user);
         this.isAuthenticated.set(true);
         this.saveUserToStorage(user);
         
-        // Verificar que se guardó correctamente
+        //verificar si se guardo correctamente
         const saved = localStorage.getItem('current_user');
-        console.log('✔️ Verificación - Usuario guardado:', saved);
+        console.log('Verificación - Usuario guardado:', saved);
       }),
       catchError(error => {
-        console.error('⚠️ Error al cargar usuario desde API:', error);
+        console.error('Error al cargar usuario desde API:', error);
         return of(null);
       })
     );
@@ -180,7 +178,7 @@ export class AuthService {
       refresh: refreshToken
     }).pipe(
       tap(response => {
-        console.log('✅ Token refrescado');
+        console.log('Token refrescado');
         this.setAccessToken(response.access);
       })
     );
@@ -190,7 +188,7 @@ export class AuthService {
     localStorage.setItem('access_token', access);
     localStorage.setItem('refresh_token', refresh);
     this.isAuthenticated.set(true);
-    console.log('🔑 Tokens guardados');
+    console.log('Tokens guardados');
   }
 
   private setAccessToken(access: string): void {
@@ -206,7 +204,7 @@ export class AuthService {
   }
 
   private clearSession(): void {
-    console.log('🧹 Limpiando sesión');
+    console.log('Limpiando sesión');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('current_user');

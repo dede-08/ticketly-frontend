@@ -118,7 +118,7 @@ export class TicketService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api`;
 
-  // ==================== TICKETS ====================
+  //TICKETS
 
   getTickets(params?: any): Observable<Ticket[]> {
     let httpParams = new HttpParams();
@@ -167,7 +167,7 @@ export class TicketService {
     );
   }
 
-  // ==================== COMENTARIOS ====================
+  //COMENTARIOS
 
   addComment(ticketId: number, content: string, isInternal: boolean = false): Observable<Comment> {
     return this.http.post<Comment>(
@@ -180,7 +180,7 @@ export class TicketService {
     return this.http.get<Comment[]>(`${this.apiUrl}/comments/?ticket=${ticketId}`);
   }
 
-  // ==================== ARCHIVOS ADJUNTOS ====================
+  //ARCHIVOS ADJUNTOS
 
   uploadAttachment(ticketId: number, file: File, description: string = ''): Observable<Attachment> {
     const formData = new FormData();
@@ -212,7 +212,7 @@ export class TicketService {
     window.open(fileUrl, '_blank');
   }
 
-  // ==================== CATEGORÍAS ====================
+  //CATEGORIAS
 
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories/`);
@@ -230,40 +230,34 @@ export class TicketService {
     return this.http.delete<void>(`${this.apiUrl}/categories/${id}/`);
   }
 
-  // ==================== PRIORIDADES ====================
+  //PRIORIDADES
 
   getPriorities(): Observable<Priority[]> {
     return this.http.get<Priority[]>(`${this.apiUrl}/priorities/`);
   }
 
-  // ==================== ESTADOS ====================
+  //ESTADOS
 
   getStatuses(): Observable<Status[]> {
     return this.http.get<Status[]>(`${this.apiUrl}/statuses/`);
   }
 
-  // ==================== UTILIDADES ====================
-
-  /**
-   * Valida si un archivo es del tipo permitido
-   */
+  //UTILIDADES
+  
+  //valida si un archivo es de un tipo permitido
   isValidFileType(file: File): boolean {
     const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'txt', 'zip', 'rar'];
     const extension = file.name.split('.').pop()?.toLowerCase();
     return extension ? allowedExtensions.includes(extension) : false;
   }
 
-  /**
-   * Valida si un archivo no excede el tamaño máximo (10MB)
-   */
+  //valida si un archivo no excede el tamaño máximo (10MB)
   isValidFileSize(file: File, maxSizeMB: number = 10): boolean {
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     return file.size <= maxSizeBytes;
   }
 
-  /**
-   * Formatea el tamaño del archivo
-   */
+  //formatea el tamaño del archivo
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -272,25 +266,5 @@ export class TicketService {
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
-  /**
-   * Obtiene el icono según la extensión del archivo
-   */
-  getFileIcon(extension: string): string {
-    const icons: { [key: string]: string } = {
-      'pdf': '📄',
-      'doc': '📝',
-      'docx': '📝',
-      'xls': '📊',
-      'xlsx': '📊',
-      'txt': '📃',
-      'zip': '📦',
-      'rar': '📦',
-      'jpg': '🖼️',
-      'jpeg': '🖼️',
-      'png': '🖼️',
-      'gif': '🖼️',
-      'bmp': '🖼️'
-    };
-    return icons[extension.toLowerCase()] || '📎';
-  }
+ 
 }
