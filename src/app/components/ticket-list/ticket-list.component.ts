@@ -36,7 +36,7 @@ export class TicketListComponent implements OnInit {
   loadData() {
     this.loading.set(true);
     
-    // Cargar tickets y datos auxiliares en paralelo
+    //cargar tickets y datos auxiliares en paralelo
     Promise.all([
       this.ticketService.getTickets().toPromise(),
       this.ticketService.getCategories().toPromise(),
