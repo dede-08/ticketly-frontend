@@ -243,7 +243,7 @@ export class TicketService {
   }
 
   //UTILIDADES
-  
+
   //valida si un archivo es de un tipo permitido
   isValidFileType(file: File): boolean {
     const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'txt', 'zip', 'rar'];
@@ -265,6 +265,4 @@ export class TicketService {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
-
- 
 }
