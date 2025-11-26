@@ -1,7 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
 
 export interface User {
   id: number;
@@ -129,7 +137,8 @@ export class TicketService {
         }
       });
     }
-    return this.http.get<Ticket[]>(`${this.apiUrl}/tickets/`, { params: httpParams });
+    return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/`, { params: httpParams })
+      .pipe(map(response => response.results));
   }
 
   getTicket(id: number): Observable<Ticket> {
@@ -149,11 +158,13 @@ export class TicketService {
   }
 
   getMyTickets(): Observable<Ticket[]> {
-    return this.http.get<Ticket[]>(`${this.apiUrl}/tickets/my_tickets/`);
+    return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/my_tickets/`)
+      .pipe(map(response => response.results));
   }
 
   getAssignedToMe(): Observable<Ticket[]> {
-    return this.http.get<Ticket[]>(`${this.apiUrl}/tickets/assigned_to_me/`);
+    return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/assigned_to_me/`)
+      .pipe(map(response => response.results));
   }
 
   getStatistics(): Observable<TicketStatistics> {

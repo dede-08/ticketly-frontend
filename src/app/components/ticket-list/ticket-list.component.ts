@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TicketService, Ticket, Category, Priority, Status } from '../../services/ticket.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ticket-list',
@@ -36,21 +38,35 @@ export class TicketListComponent implements OnInit {
   loadData() {
     this.loading.set(true);
     
-    //cargar tickets y datos auxiliares en paralelo
-    Promise.all([
-      this.ticketService.getTickets().toPromise(),
-      this.ticketService.getCategories().toPromise(),
-      this.ticketService.getPriorities().toPromise(),
-      this.ticketService.getStatuses().toPromise()
-    ]).then(([tickets, categories, priorities, statuses]) => {
-      this.tickets.set(tickets || []);
-      this.categories.set(categories || []);
-      this.priorities.set(priorities || []);
-      this.statuses.set(statuses || []);
-      this.loading.set(false);
-    }).catch(error => {
-      console.error('Error loading data:', error);
-      this.loading.set(false);
+    forkJoin({
+      tickets: this.ticketService.getTickets().pipe(catchError(err => {
+        console.error('Error loading tickets:', err);
+        return of([]); // Devuelve un array vacío en caso de error
+      })),
+      categories: this.ticketService.getCategories().pipe(catchError(err => {
+        console.error('Error loading categories:', err);
+        return of([]);
+      })),
+      priorities: this.ticketService.getPriorities().pipe(catchError(err => {
+        console.error('Error loading priorities:', err);
+        return of([]);
+      })),
+      statuses: this.ticketService.getStatuses().pipe(catchError(err => {
+        console.error('Error loading statuses:', err);
+        return of([]);
+      }))
+    }).subscribe({
+      next: ({ tickets, categories, priorities, statuses }) => {
+        this.tickets.set(tickets || []);
+        this.categories.set(categories || []);
+        this.priorities.set(priorities || []);
+        this.statuses.set(statuses || []);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('Error in forkJoin:', error);
+        this.loading.set(false);
+      }
     });
   }
 
