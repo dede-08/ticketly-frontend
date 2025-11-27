@@ -26,7 +26,7 @@
         <!-- Información del usuario -->
         @if (authService.currentUser()) {
         <div class="hidden md:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
-          
+
           <div class="flex flex-col">
             <span class="text-sm">{{ authService.currentUser()!.username || 'Usuario' }}</span>
             <span class="text-sm font-semibold text-gray-800">
@@ -44,15 +44,18 @@
         <button routerLink="/tickets/new"
           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium shadow-md hover:shadow-lg transform hover:scale-105">
           <span class="hidden md:inline">+ Nuevo Ticket</span>
-          <span class="md:hidden">+</span>
+          <span class="md:hidden"><span class="material-symbols-outlined">
+              add
+            </span></span>
         </button>
 
         <!-- Botón Logout -->
         <button (click)="logout()"
           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium shadow-md hover:shadow-lg"
           title="Cerrar sesión">
-          <span class="hidden md:inline">Salir</span>
-          <span class="md:hidden">🚪</span>
+          <span class="hidden md:inline material-symbols-outlined">
+            exit_to_app
+          </span>
         </button>
       </div>
     </div>
