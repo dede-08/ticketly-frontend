@@ -1,4 +1,4 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br  bg-gray-500 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br  bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-2xl">
         <div>
           <div class="flex justify-center">
@@ -37,7 +37,7 @@
                   type="text"
                   formControlName="first_name"
                   class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Juan">
+                  placeholder="Nombres">
                 @if (registerForm.get('first_name')?.invalid && registerForm.get('first_name')?.touched) {
                   <p class="mt-1 text-xs text-red-600">Requerido</p>
                 }
@@ -52,7 +52,7 @@
                   type="text"
                   formControlName="last_name"
                   class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Pérez">
+                  placeholder="Apellidos">
                 @if (registerForm.get('last_name')?.invalid && registerForm.get('last_name')?.touched) {
                   <p class="mt-1 text-xs text-red-600">Requerido</p>
                 }
@@ -68,7 +68,7 @@
                 type="text"
                 formControlName="username"
                 class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="juanperez">
+                placeholder="username">
               @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
                 <p class="mt-1 text-sm text-red-600">El usuario es requerido</p>
               }
@@ -83,7 +83,7 @@
                 type="email"
                 formControlName="email"
                 class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="juan@ejemplo.com">
+                placeholder="usuario@ejemplo.com">
               @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
                 <p class="mt-1 text-sm text-red-600">Email válido requerido</p>
               }
@@ -98,7 +98,7 @@
                 type="password"
                 formControlName="password"
                 class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="••••••••">
+                placeholder="********">
               @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
                 <p class="mt-1 text-sm text-red-600">Mínimo 8 caracteres</p>
               }
@@ -113,7 +113,7 @@
                 type="password"
                 formControlName="password2"
                 class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="••••••••">
+                placeholder="********">
               @if (registerForm.hasError('passwordMismatch') && registerForm.get('password2')?.touched) {
                 <p class="mt-1 text-sm text-red-600">Las contraseñas no coinciden</p>
               }
