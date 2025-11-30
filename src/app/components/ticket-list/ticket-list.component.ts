@@ -41,7 +41,7 @@ export class TicketListComponent implements OnInit {
     forkJoin({
       tickets: this.ticketService.getTickets().pipe(catchError(err => {
         console.error('Error loading tickets:', err);
-        return of([]); // Devuelve un array vacío en caso de error
+        return of([]); //devuelve un array vacío en caso de error
       })),
       categories: this.ticketService.getCategories().pipe(catchError(err => {
         console.error('Error loading categories:', err);
@@ -109,4 +109,6 @@ export class TicketListComponent implements OnInit {
     };
     return classes[statusName] || 'bg-gray-100 text-gray-800';
   }
+
+  
 }
