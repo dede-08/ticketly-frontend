@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { TicketService, Category, Priority, Status } from '../../services/ticket.service';
+import { TicketService, Category, Priority, Status, TicketCreate, Ticket } from '../../services/ticket.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Observable } from 'rxjs';
 
 
 @Component({
@@ -33,15 +34,19 @@ export class TicketFormComponent implements OnInit {
 
   ngOnInit() {
     this.initForm();
-    this.loadData();
-    
-    // Verificar si estamos en modo edición
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.ticketId = +params['id'];
-        this.isEditMode.set(true);
-        this.loadTicket(this.ticketId);
-      }
+    this.loading.set(true);
+    this.loadData().then(() => {
+      this.route.params.subscribe(params => {
+        if (params['id']) {
+          this.ticketId = +params['id'];
+          this.isEditMode.set(true);
+          this.loadTicket(this.ticketId);
+        } else {
+          this.loading.set(false);
+        }
+      });
+    }).catch(() => {
+      this.loading.set(false);
     });
   }
 
@@ -56,8 +61,8 @@ export class TicketFormComponent implements OnInit {
     });
   }
 
-  loadData() {
-    Promise.all([
+  loadData(): Promise<any> {
+    return Promise.all([
       this.ticketService.getCategories().toPromise(),
       this.ticketService.getPriorities().toPromise(),
       this.ticketService.getStatuses().toPromise()
@@ -65,20 +70,15 @@ export class TicketFormComponent implements OnInit {
       this.categories.set(categories || []);
       this.priorities.set(priorities || []);
       this.statuses.set(statuses || []);
-      
-      // Establecer valor por defecto para estado "Abierto" si no es modo edición
-      if (!this.isEditMode()) {
-        const openStatus = statuses?.find(s => s.name === 'OPEN');
-        if (openStatus) {
-          this.ticketForm.patchValue({ status: openStatus.id });
-        }
+
+      const openStatus = statuses?.find(s => s.name === 'OPEN');
+      if (openStatus) {
+        this.ticketForm.patchValue({ status: openStatus.id });
       }
-      
-      this.loading.set(false);
     }).catch(error => {
       console.error('Error loading data:', error);
       this.error.set('Error al cargar los datos');
-      this.loading.set(false);
+      throw error;
     });
   }
 
@@ -93,10 +93,12 @@ export class TicketFormComponent implements OnInit {
           status: ticket.status.id,
           tagsInput: ticket.tags.join(', ')
         });
+        this.loading.set(false);
       },
       error: (error) => {
         console.error('Error loading ticket:', error);
         this.error.set('Error al cargar el ticket');
+        this.loading.set(false);
       }
     });
   }
@@ -113,22 +115,34 @@ export class TicketFormComponent implements OnInit {
     this.error.set('');
 
     const formValue = this.ticketForm.value;
-    const tags = formValue.tagsInput 
+    const tags = formValue.tagsInput
       ? formValue.tagsInput.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag)
       : [];
 
-    const ticketData = {
-      title: formValue.title,
-      description: formValue.description,
-      category: formValue.category,
-      priority: formValue.priority,
-      status: formValue.status,
-      tags: tags
-    };
+    let operation: Observable<Ticket>;
 
-    const operation = this.isEditMode() && this.ticketId
-      ? this.ticketService.updateTicket(this.ticketId, ticketData)
-      : this.ticketService.createTicket(ticketData);
+    if (this.isEditMode() && this.ticketId) {
+      const ticketData: Partial<Ticket> = {
+        title: formValue.title,
+        description: formValue.description,
+        category: { id: formValue.category } as Category,
+        priority: { id: formValue.priority } as Priority,
+        status: { id: formValue.status } as Status,
+        tags: tags,
+      };
+
+      operation = this.ticketService.updateTicket(this.ticketId, ticketData);
+    } else {
+      const ticketData: TicketCreate = {
+        title: formValue.title,
+        description: formValue.description,
+        category: formValue.category,
+        priority: formValue.priority,
+        status: formValue.status,
+        tags: tags,
+      };
+      operation = this.ticketService.createTicket(ticketData);
+    }
 
     operation.subscribe({
       next: (ticket) => {
