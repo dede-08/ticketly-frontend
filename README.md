@@ -1,22 +1,88 @@
-# TicketlyFrontend
+# Ticketly Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.3.
+Una aplicación Angular moderna y escalable para gestión de tickets. Construida con Angular 19, TypeScript y Tailwind CSS.
 
-## Development server
+## Características
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- **Autenticación**: Sistema seguro de login y registro con JWT
+- **Gestión de Tickets**: Crear, editar, ver y eliminar tickets
+- **Comentarios**: Agregar comentarios públicos e internos a tickets
+- **Adjuntos**: Soporte para upload de archivos y vista previa de imágenes
+- **Dashboard**: Estadísticas y resumen de tickets
+- **Roles y Permisos**: Control basado en roles (admin, agent, user)
+- **Responsive**: Diseño mobile-first con Tailwind CSS
+- **Type-Safe**: TypeScript strict mode habilitado
 
-## Code scaffolding
+## Requisitos
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Node.js ^20.18.0
+- npm ^11.0.0
+- Angular CLI 19.x
 
-## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Comandos principales
 
-## Running unit tests
+```bash
+# Desarrollo - servidor local con hot reload
+npm start
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+# Build para producción
+npm run build
+
+# Ejecutar pruebas unitarias
+npm run test
+
+# Linter - verificar código
+npm run lint
+
+# Linter - corregir automáticamente
+npm run lint:fix
+
+# Formateo de código
+npm run format
+
+# Verificar formato
+npm run format:check
+
+# Watch mode - rebuild automático
+npm run watch
+```
+
+## Estructura del proyecto
+
+```
+src/
+├── app/
+│   ├── components/          # Componentes UI
+│   ├── services/            # Servicios HTTP
+│   ├── guards/              # Route guards
+│   ├── interceptors/        # HTTP interceptors
+│   ├── app.routes.ts        # Rutas
+│   └── app.config.ts        # Configuración
+├── assets/                  # Recursos estáticos
+└── environments/            # Configuración por ambiente
+```
+
+## Autenticación
+
+Utiliza tokens JWT. Los tokens se guardan en localStorage y se envían automáticamente en cada petición HTTP.
+
+## Testing
+
+```bash
+npm run test                           # Ejecutar tests
+npm run test -- --watch               # Modo watch
+npm run test -- --code-coverage       # Con coverage
+```
+
+
+## Licencia
+
+MIT
+
+---
+
+Última actualización: Diciembre 2025
 
 ## Running end-to-end tests
 

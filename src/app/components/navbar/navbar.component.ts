@@ -1,17 +1,14 @@
 import { Component, effect, inject, OnInit } from '@angular/core';
-import { Router, RouterModule, RouterOutlet } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [
-    RouterModule,
-    CommonModule
-  ],
+  imports: [RouterModule, CommonModule],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrl: './navbar.component.css',
 })
 export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
@@ -20,17 +17,17 @@ export class NavbarComponent implements OnInit {
     // Effect para detectar cambios en currentUser
     effect(() => {
       const user = this.authService.currentUser();
-      console.log('Usuario en navbar:', user);
+      console.warn('Usuario en navbar:', user);
     });
   }
 
   ngOnInit(): void {
     // Forzar la carga del usuario si no está cargado
     if (!this.authService.currentUser()) {
-      console.log('No hay usuario en navbar, intentando cargar...');
+      console.warn('No hay usuario en navbar, intentando cargar...');
       this.authService.loadUserInfo();
     } else {
-      console.log('Usuario ya cargado en navbar:', this.authService.currentUser());
+      console.warn('Usuario ya cargado en navbar:', this.authService.currentUser());
     }
   }
 

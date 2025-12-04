@@ -43,3 +43,9 @@ Thumbs.db
 
 #environment files
 /src/environments/environment.ts
+
+
+lint-output.txt
+
+CHANGELOG.md
+CONTRIBUTING.md
