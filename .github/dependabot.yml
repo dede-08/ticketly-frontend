@@ -18,7 +18,7 @@ updates:
     allow:
       - dependency-type: "all"
     ignore:
-      # Ignorar cambios menores en dependencias estables
+      #ignorar cambios menores en dependencias estables
       - dependency-name: "typescript"
         update-types:
           - "version-update:semver-patch"
