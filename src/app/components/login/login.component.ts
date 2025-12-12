@@ -7,13 +7,9 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
@@ -29,10 +25,10 @@ export class LoginComponent {
   constructor() {
     this.loginForm = this.fb.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
     });
 
-    // Obtener la URL de retorno si existe
+    //obtener la URL de retorno si existe
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   }
 
@@ -57,7 +53,7 @@ export class LoginComponent {
           this.error.set('Error al iniciar sesión. Por favor intenta de nuevo.');
         }
         console.error('Login error:', err);
-      }
+      },
     });
   }
 }

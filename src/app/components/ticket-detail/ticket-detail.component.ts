@@ -48,7 +48,7 @@ export class TicketDetailComponent implements OnInit {
     });
   }
 
-  // Drag & Drop handlers
+  //drag & drop handlers
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -83,7 +83,7 @@ export class TicketDetailComponent implements OnInit {
   uploadFile(file: File): void {
     if (!this.ticket()) return;
 
-    // Validar tamaño (10MB)
+    //validar tamaño (10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       this.uploadError.set('El archivo es demasiado grande. Máximo 10MB');
@@ -96,7 +96,7 @@ export class TicketDetailComponent implements OnInit {
     this.ticketService.uploadAttachment(this.ticket()!.id, file).subscribe({
       next: () => {
         this.uploadingFile.set(false);
-        // Recargar ticket para mostrar el nuevo archivo
+        //recargar ticket para mostrar el nuevo archivo
         this.loadTicket(this.ticket()!.id);
       },
       error: (error) => {

@@ -14,7 +14,7 @@ export class NavbarComponent implements OnInit {
   authService = inject(AuthService);
 
   constructor() {
-    // Effect para detectar cambios en currentUser
+    //effect para detectar cambios en currentUser
     effect(() => {
       const user = this.authService.currentUser();
       console.warn('Usuario en navbar:', user);
@@ -22,7 +22,7 @@ export class NavbarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Forzar la carga del usuario si no está cargado
+    //forzar la carga del usuario si no está cargado
     if (!this.authService.currentUser()) {
       console.warn('No hay usuario en navbar, intentando cargar...');
       this.authService.loadUserInfo();
