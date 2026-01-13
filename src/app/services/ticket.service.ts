@@ -120,7 +120,7 @@ export interface TicketStatistics {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TicketService {
   private http = inject(HttpClient);
@@ -131,14 +131,15 @@ export class TicketService {
   getTickets(params?: any): Observable<Ticket[]> {
     let httpParams = new HttpParams();
     if (params) {
-      Object.keys(params).forEach(key => {
+      Object.keys(params).forEach((key) => {
         if (params[key] !== null && params[key] !== undefined) {
           httpParams = httpParams.set(key, params[key]);
         }
       });
     }
-    return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/`, { params: httpParams })
-      .pipe(map(response => response.results));
+    return this.http
+      .get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/`, { params: httpParams })
+      .pipe(map((response) => response.results));
   }
 
   getTicket(id: number): Observable<Ticket> {
@@ -158,13 +159,20 @@ export class TicketService {
   }
 
   getMyTickets(): Observable<Ticket[]> {
-    return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/my_tickets/`)
-      .pipe(map(response => response.results));
+    return this.http
+      .get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/my_tickets/`)
+      .pipe(map((response) => response.results));
+  }
+
+  getMyTicketsFiltered(): Observable<Ticket[]> {
+    // Alternativa: usar el endpoint general con filtro created_by_me
+    return this.getTickets({ created_by_me: 'true' });
   }
 
   getAssignedToMe(): Observable<Ticket[]> {
-    return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/assigned_to_me/`)
-      .pipe(map(response => response.results));
+    return this.http
+      .get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/assigned_to_me/`)
+      .pipe(map((response) => response.results));
   }
 
   getStatistics(): Observable<TicketStatistics> {
@@ -172,19 +180,18 @@ export class TicketService {
   }
 
   assignTicket(ticketId: number, userId: number | null): Observable<Ticket> {
-    return this.http.post<Ticket>(
-      `${this.apiUrl}/tickets/${ticketId}/assign/`,
-      { user_id: userId }
-    );
+    return this.http.post<Ticket>(`${this.apiUrl}/tickets/${ticketId}/assign/`, {
+      user_id: userId,
+    });
   }
 
   //COMENTARIOS
 
   addComment(ticketId: number, content: string, isInternal: boolean = false): Observable<Comment> {
-    return this.http.post<Comment>(
-      `${this.apiUrl}/tickets/${ticketId}/add_comment/`,
-      { content, is_internal: isInternal }
-    );
+    return this.http.post<Comment>(`${this.apiUrl}/tickets/${ticketId}/add_comment/`, {
+      content,
+      is_internal: isInternal,
+    });
   }
 
   getComments(ticketId: number): Observable<Comment[]> {
@@ -199,7 +206,7 @@ export class TicketService {
     if (description) {
       formData.append('description', description);
     }
-    
+
     return this.http.post<Attachment>(
       `${this.apiUrl}/tickets/${ticketId}/upload_attachment/`,
       formData
@@ -207,12 +214,9 @@ export class TicketService {
   }
 
   deleteAttachment(ticketId: number, attachmentId: number): Observable<any> {
-    return this.http.request('delete', 
-      `${this.apiUrl}/tickets/${ticketId}/delete_attachment/`,
-      { 
-        body: { attachment_id: attachmentId }
-      }
-    );
+    return this.http.request('delete', `${this.apiUrl}/tickets/${ticketId}/delete_attachment/`, {
+      body: { attachment_id: attachmentId },
+    });
   }
 
   getAttachments(ticketId: number): Observable<Attachment[]> {
@@ -257,7 +261,21 @@ export class TicketService {
 
   //valida si un archivo es de un tipo permitido
   isValidFileType(file: File): boolean {
-    const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'txt', 'zip', 'rar'];
+    const allowedExtensions = [
+      'pdf',
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'bmp',
+      'txt',
+      'zip',
+      'rar',
+    ];
     const extension = file.name.split('.').pop()?.toLowerCase();
     return extension ? allowedExtensions.includes(extension) : false;
   }

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { Ticket, TicketService, TicketStatistics } from '../../services/ticket.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +13,7 @@ import { Ticket, TicketService, TicketStatistics } from '../../services/ticket.s
 })
 export class DashboardComponent implements OnInit {
   private ticketService = inject(TicketService);
+  private router = inject(Router);
 
   statistics = signal<TicketStatistics | null>(null);
   myTickets = signal<Ticket[]>([]);
@@ -20,6 +22,15 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadDashboardData();
+
+    // Recargar datos cuando el usuario regresa al dashboard
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/dashboard' || event.url === '/') {
+          this.loadDashboardData();
+        }
+      });
   }
 
   loadDashboardData() {
@@ -27,10 +38,11 @@ export class DashboardComponent implements OnInit {
 
     Promise.all([
       this.ticketService.getStatistics().toPromise(),
-      this.ticketService.getMyTickets().toPromise(),
+      this.ticketService.getMyTicketsFiltered().toPromise(),
       this.ticketService.getAssignedToMe().toPromise(),
     ])
       .then(([stats, myTickets, assignedTickets]) => {
+        console.log('Dashboard Data Loaded:', { stats, myTickets, assignedTickets });
         this.statistics.set(stats || null);
         this.myTickets.set(myTickets || []);
         this.assignedTickets.set(assignedTickets || []);
