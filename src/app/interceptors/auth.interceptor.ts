@@ -39,7 +39,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return authService.refreshToken().pipe(
             switchMap((response) => {
               console.log('Token refrescado exitosamente');
-              //reintentar la petición original con el nuevo token
+              //reintentar la peticion original con el nuevo token
               const clonedReq = req.clone({
                 setHeaders: {
                   Authorization: `Bearer ${response.access}`,
@@ -49,7 +49,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             }),
             catchError((refreshError) => {
               console.error('Error al refrescar token:', refreshError);
-              //solo cerrar sesion si el refresh token también falla
+              //solo cerrar sesion si el refresh token tambien falla
               return throwError(() => refreshError);
             })
           );
