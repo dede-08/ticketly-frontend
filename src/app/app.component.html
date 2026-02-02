@@ -1,16 +1,18 @@
-<div class="min-h-screen bg-gray-100 flex flex-col">
-    <!-- Navbar solo si está autenticado -->
-    @if (authService.isAuthenticated()) {
-    <app-navbar />
-    }
+<div class="min-h-screen bg-gray-100 flex">
+  <!-- Sidebar solo si está autenticado -->
+  @if (authService.isAuthenticated()) {
+    <app-sidebar />
+  }
 
-    <!-- Main Content -->
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col" [class.md:ml-64]="authService.isAuthenticated()">
     <main class="flex-1">
-        <router-outlet></router-outlet>
+      <router-outlet></router-outlet>
     </main>
 
     <!-- Footer solo si está autenticado -->
     @if (authService.isAuthenticated()) {
-    <app-footer />
+      <app-footer />
     }
+  </div>
 </div>

@@ -4,13 +4,13 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-navbar',
+  selector: 'app-sidebar',
   standalone: true,
   imports: [RouterModule, CommonModule],
-  templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css',
+  templateUrl: './sidebar.component.html',
+  styleUrl: './sidebar.component.css',
 })
-export class NavbarComponent implements OnInit {
+export class SidebarComponent implements OnInit {
   authService = inject(AuthService);
 
   constructor() {
