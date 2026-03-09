@@ -127,7 +127,6 @@ export class TicketService {
   private apiUrl = `${environment.apiUrl}/api`;
 
   //TICKETS
-
   getTickets(params?: any): Observable<Ticket[]> {
     let httpParams = new HttpParams();
     if (params) {
@@ -186,7 +185,6 @@ export class TicketService {
   }
 
   //COMENTARIOS
-
   addComment(ticketId: number, content: string, isInternal: boolean = false): Observable<Comment> {
     return this.http.post<Comment>(`${this.apiUrl}/tickets/${ticketId}/add_comment/`, {
       content,
@@ -199,7 +197,6 @@ export class TicketService {
   }
 
   //ARCHIVOS ADJUNTOS
-
   uploadAttachment(ticketId: number, file: File, description: string = ''): Observable<Attachment> {
     const formData = new FormData();
     formData.append('file', file);
@@ -228,7 +225,6 @@ export class TicketService {
   }
 
   //CATEGORIAS
-
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.apiUrl}/categories/`);
   }
@@ -246,13 +242,11 @@ export class TicketService {
   }
 
   //PRIORIDADES
-
   getPriorities(): Observable<Priority[]> {
     return this.http.get<Priority[]>(`${this.apiUrl}/priorities/`);
   }
 
   //ESTADOS
-
   getStatuses(): Observable<Status[]> {
     return this.http.get<Status[]>(`${this.apiUrl}/statuses/`);
   }

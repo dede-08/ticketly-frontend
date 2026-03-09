@@ -23,7 +23,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.loadDashboardData();
 
-    // Recargar datos cuando el usuario regresa al dashboard
+    //recargar datos cuando el usuario regresa al dashboard
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: any) => {
