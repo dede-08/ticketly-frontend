@@ -34,11 +34,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         //solo intentar refrescar si tenemos refresh token
         if (refreshToken) {
-          console.log('Intentando refrescar token...');
+          console.warn('Intentando refrescar token...');
 
           return authService.refreshToken().pipe(
             switchMap((response) => {
-              console.log('Token refrescado exitosamente');
+              console.warn('Token refrescado exitosamente');
               //reintentar la peticion original con el nuevo token
               const clonedReq = req.clone({
                 setHeaders: {
@@ -55,7 +55,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           );
         } else {
           //no hay refresh token, cerrar sesion
-          console.log('No hay refresh token, cerrando sesión');
+          console.warn('No hay refresh token, cerrando sesión');
           authService.logout();
         }
       }

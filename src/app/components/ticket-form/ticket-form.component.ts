@@ -1,21 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { TicketService, Category, Priority, Status, TicketCreate, Ticket } from '../../services/ticket.service';
+import {
+  TicketService,
+  User,
+  Category,
+  Priority,
+  Status,
+  TicketCreate,
+  Ticket,
+} from '../../services/ticket.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 
-
 @Component({
   selector: 'app-ticket-form',
   standalone: true,
-  imports: [CommonModule, 
-    ReactiveFormsModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './ticket-form.component.html',
-  styleUrl: './ticket-form.component.css'
+  styleUrl: './ticket-form.component.css',
 })
-
 export class TicketFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private ticketService = inject(TicketService);
@@ -26,6 +30,7 @@ export class TicketFormComponent implements OnInit {
   categories = signal<Category[]>([]);
   priorities = signal<Priority[]>([]);
   statuses = signal<Status[]>([]);
+  users = signal<User[]>([]);
   loading = signal(true);
   submitting = signal(false);
   error = signal('');
@@ -35,19 +40,21 @@ export class TicketFormComponent implements OnInit {
   ngOnInit() {
     this.initForm();
     this.loading.set(true);
-    this.loadData().then(() => {
-      this.route.params.subscribe(params => {
-        if (params['id']) {
-          this.ticketId = +params['id'];
-          this.isEditMode.set(true);
-          this.loadTicket(this.ticketId);
-        } else {
-          this.loading.set(false);
-        }
+    this.loadData()
+      .then(() => {
+        this.route.params.subscribe((params) => {
+          if (params['id']) {
+            this.ticketId = +params['id'];
+            this.isEditMode.set(true);
+            this.loadTicket(this.ticketId);
+          } else {
+            this.loading.set(false);
+          }
+        });
+      })
+      .catch(() => {
+        this.loading.set(false);
       });
-    }).catch(() => {
-      this.loading.set(false);
-    });
   }
 
   initForm() {
@@ -57,29 +64,52 @@ export class TicketFormComponent implements OnInit {
       category: ['', Validators.required],
       priority: ['', Validators.required],
       status: ['', Validators.required],
-      tagsInput: ['']
+      assigned_to: [''],
+      tagsInput: [''],
     });
   }
 
   loadData(): Promise<any> {
+    const usersPromise = this.ticketService
+      .getUsers()
+      .toPromise()
+      .catch((error) => {
+        console.warn(
+          'No se pudieron cargar usuarios, continuará con formulario sin asignación:',
+          error
+        );
+        return [] as User[];
+      });
+
     return Promise.all([
       this.ticketService.getCategories().toPromise(),
       this.ticketService.getPriorities().toPromise(),
-      this.ticketService.getStatuses().toPromise()
-    ]).then(([categories, priorities, statuses]) => {
-      this.categories.set(categories || []);
-      this.priorities.set(priorities || []);
-      this.statuses.set(statuses || []);
+      this.ticketService.getStatuses().toPromise(),
+      usersPromise,
+    ])
+      .then(([categories, priorities, statuses, users]) => {
+        this.categories.set(categories || []);
+        this.priorities.set(priorities || []);
+        this.statuses.set(statuses || []);
+        this.users.set(users || []);
 
-      const openStatus = statuses?.find(s => s.name === 'OPEN');
-      if (openStatus) {
-        this.ticketForm.patchValue({ status: openStatus.id });
-      }
-    }).catch(error => {
-      console.error('Error loading data:', error);
-      this.error.set('Error al cargar los datos');
-      throw error;
-    });
+        console.log('ticket-form loadData:', {
+          categories: this.categories(),
+          priorities: this.priorities(),
+          statuses: this.statuses(),
+          users: this.users(),
+        });
+
+        const openStatus = statuses?.find((s) => s.name === 'OPEN');
+        if (openStatus) {
+          this.ticketForm.patchValue({ status: openStatus.id });
+        }
+      })
+      .catch((error) => {
+        console.error('Error loading datos:', error);
+        this.error.set('Error al cargar los datos');
+        throw error;
+      });
   }
 
   loadTicket(id: number) {
@@ -91,7 +121,8 @@ export class TicketFormComponent implements OnInit {
           category: ticket.category.id,
           priority: ticket.priority.id,
           status: ticket.status.id,
-          tagsInput: ticket.tags.join(', ')
+          assigned_to: ticket.assigned_to ? ticket.assigned_to.id : '',
+          tagsInput: ticket.tags.join(', '),
         });
         this.loading.set(false);
       },
@@ -99,13 +130,13 @@ export class TicketFormComponent implements OnInit {
         console.error('Error loading ticket:', error);
         this.error.set('Error al cargar el ticket');
         this.loading.set(false);
-      }
+      },
     });
   }
 
   onSubmit() {
     if (this.ticketForm.invalid) {
-      Object.keys(this.ticketForm.controls).forEach(key => {
+      Object.keys(this.ticketForm.controls).forEach((key) => {
         this.ticketForm.get(key)?.markAsTouched();
       });
       return;
@@ -116,7 +147,10 @@ export class TicketFormComponent implements OnInit {
 
     const formValue = this.ticketForm.value;
     const tags = formValue.tagsInput
-      ? formValue.tagsInput.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag)
+      ? formValue.tagsInput
+          .split(',')
+          .map((tag: string) => tag.trim())
+          .filter((tag: string) => tag)
       : [];
 
     let operation: Observable<Ticket>;
@@ -128,6 +162,7 @@ export class TicketFormComponent implements OnInit {
         category: { id: formValue.category } as Category,
         priority: { id: formValue.priority } as Priority,
         status: { id: formValue.status } as Status,
+        assigned_to: formValue.assigned_to ? ({ id: formValue.assigned_to } as User) : null,
         tags: tags,
       };
 
@@ -139,6 +174,7 @@ export class TicketFormComponent implements OnInit {
         category: formValue.category,
         priority: formValue.priority,
         status: formValue.status,
+        assigned_to: formValue.assigned_to || null,
         tags: tags,
       };
       operation = this.ticketService.createTicket(ticketData);
@@ -153,7 +189,7 @@ export class TicketFormComponent implements OnInit {
         console.error('Error saving ticket:', error);
         this.error.set('Error al guardar el ticket. Por favor intenta de nuevo.');
         this.submitting.set(false);
-      }
+      },
     });
   }
 

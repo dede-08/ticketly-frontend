@@ -25,8 +25,8 @@ export class DashboardComponent implements OnInit {
 
     //recargar datos cuando el usuario regresa al dashboard
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((event: any) => {
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
         if (event.url === '/dashboard' || event.url === '/') {
           this.loadDashboardData();
         }
@@ -42,10 +42,28 @@ export class DashboardComponent implements OnInit {
       this.ticketService.getAssignedToMe().toPromise(),
     ])
       .then(([stats, myTickets, assignedTickets]) => {
-        console.log('Dashboard Data Loaded:', { stats, myTickets, assignedTickets });
+        console.warn('Dashboard Data Loaded:', { stats, myTickets, assignedTickets });
         this.statistics.set(stats || null);
         this.myTickets.set(myTickets || []);
         this.assignedTickets.set(assignedTickets || []);
+
+        if ((assignedTickets || []).length === 0) {
+          console.warn(
+            'No hay tickets asignados con assigned_to_me. Intentando fallback con filtro general asignado...'
+          );
+          this.ticketService
+            .getTickets({ assigned_to_me: 'true' })
+            .toPromise()
+            .then((fallbackAssigned) => {
+              if (fallbackAssigned && fallbackAssigned.length > 0) {
+                this.assignedTickets.set(fallbackAssigned);
+              }
+            })
+            .catch((err) => {
+              console.error('El fallback assigned_to_me también falló:', err);
+            });
+        }
+
         this.loading.set(false);
       })
       .catch((error) => {

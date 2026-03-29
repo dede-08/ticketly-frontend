@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface PaginatedResponse<T> {
@@ -126,7 +126,7 @@ export class TicketService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api`;
 
-  //TICKETS
+  //tickets
   getTickets(params?: any): Observable<Ticket[]> {
     let httpParams = new HttpParams();
     if (params) {
@@ -164,14 +164,18 @@ export class TicketService {
   }
 
   getMyTicketsFiltered(): Observable<Ticket[]> {
-    // Alternativa: usar el endpoint general con filtro created_by_me
+    //alternativa: usar el endpoint general con filtro created_by_me
     return this.getTickets({ created_by_me: 'true' });
   }
 
   getAssignedToMe(): Observable<Ticket[]> {
-    return this.http
-      .get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/assigned_to_me/`)
-      .pipe(map((response) => response.results));
+    return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/assigned_to_me/`).pipe(
+      map((response) => response.results),
+      catchError((error) => {
+        console.warn('assigned_to_me endpoint no disponible, intentando fallback:', error);
+        return this.getTickets({ assigned_to_me: 'true' });
+      })
+    );
   }
 
   getStatistics(): Observable<TicketStatistics> {
@@ -184,7 +188,7 @@ export class TicketService {
     });
   }
 
-  //COMENTARIOS
+  //comentarios
   addComment(ticketId: number, content: string, isInternal: boolean = false): Observable<Comment> {
     return this.http.post<Comment>(`${this.apiUrl}/tickets/${ticketId}/add_comment/`, {
       content,
@@ -196,7 +200,7 @@ export class TicketService {
     return this.http.get<Comment[]>(`${this.apiUrl}/comments/?ticket=${ticketId}`);
   }
 
-  //ARCHIVOS ADJUNTOS
+  //archivos adjuntos
   uploadAttachment(ticketId: number, file: File, description: string = ''): Observable<Attachment> {
     const formData = new FormData();
     formData.append('file', file);
@@ -224,9 +228,18 @@ export class TicketService {
     window.open(fileUrl, '_blank');
   }
 
-  //CATEGORIAS
+  //categorias
   getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${this.apiUrl}/categories/`);
+    return this.http
+      .get<Category[] | PaginatedResponse<Category>>(`${this.apiUrl}/categories/`)
+      .pipe(
+        map((response) => {
+          if (Array.isArray(response)) {
+            return response;
+          }
+          return response.results || [];
+        })
+      );
   }
 
   createCategory(category: Partial<Category>): Observable<Category> {
@@ -241,18 +254,62 @@ export class TicketService {
     return this.http.delete<void>(`${this.apiUrl}/categories/${id}/`);
   }
 
-  //PRIORIDADES
+  //prioridades
   getPriorities(): Observable<Priority[]> {
-    return this.http.get<Priority[]>(`${this.apiUrl}/priorities/`);
+    return this.http
+      .get<Priority[] | PaginatedResponse<Priority>>(`${this.apiUrl}/priorities/`)
+      .pipe(
+        map((response) => {
+          if (Array.isArray(response)) {
+            return response;
+          }
+          return response.results || [];
+        })
+      );
   }
 
-  //ESTADOS
+  //estados
   getStatuses(): Observable<Status[]> {
-    return this.http.get<Status[]>(`${this.apiUrl}/statuses/`);
+    return this.http.get<Status[] | PaginatedResponse<Status>>(`${this.apiUrl}/statuses/`).pipe(
+      map((response) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return response.results || [];
+      })
+    );
   }
 
-  //UTILIDADES
+  //usuarios
+  getUsers(): Observable<User[]> {
+    const unwrap = (response: User[] | PaginatedResponse<User>): User[] => {
+      if (Array.isArray(response)) {
+        return response;
+      }
+      return response.results || [];
+    };
 
+    return this.http.get<User[] | PaginatedResponse<User>>(`${this.apiUrl}/users/`).pipe(
+      map(unwrap),
+      catchError(() => {
+        //fallback para APIs que exponen solo usuario actual
+        return this.http.get<User>(`${this.apiUrl}/auth/user/`).pipe(
+          map((user) => (user ? [user] : [])),
+          catchError(() => {
+            //ultimo recurso: intentar endpoint alternativo
+            return this.http
+              .get<User[] | PaginatedResponse<User>>(`${this.apiUrl}/auth/users/`)
+              .pipe(
+                map(unwrap),
+                catchError(() => of([]))
+              );
+          })
+        );
+      })
+    );
+  }
+
+  //utilidades
   //valida si un archivo es de un tipo permitido
   isValidFileType(file: File): boolean {
     const allowedExtensions = [
