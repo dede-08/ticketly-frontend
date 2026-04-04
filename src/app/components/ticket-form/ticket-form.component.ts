@@ -93,7 +93,7 @@ export class TicketFormComponent implements OnInit {
         this.statuses.set(statuses || []);
         this.users.set(users || []);
 
-        console.log('ticket-form loadData:', {
+        console.warn('ticket-form loadData:', {
           categories: this.categories(),
           priorities: this.priorities(),
           statuses: this.statuses(),
