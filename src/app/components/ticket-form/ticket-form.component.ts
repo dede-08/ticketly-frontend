@@ -183,7 +183,11 @@ export class TicketFormComponent implements OnInit {
     operation.subscribe({
       next: (ticket) => {
         this.submitting.set(false);
-        this.router.navigate(['/tickets', ticket.id]);
+        if (this.isEditMode()) {
+          this.router.navigate(['/tickets', ticket.id]);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (error) => {
         console.error('Error saving ticket:', error);
