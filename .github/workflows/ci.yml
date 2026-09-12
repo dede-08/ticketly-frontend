@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +29,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Format check
+        run: npm run format:check
+
       - name: Test
         run: npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
@@ -36,8 +39,8 @@ jobs:
         run: npm run build
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        if: matrix.node-version == '20.x'
+        uses: codecov/codecov-action@v5
+        if: matrix.node-version == '22.x'
         with:
           directory: ./coverage
           fail_ci_if_error: false

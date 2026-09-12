@@ -41,11 +41,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
-#environment files
-/src/environments/environment.ts
-
+# Environment files (se versionan las plantillas dev/prod; usar environment.local.ts para secretos locales)
+# /src/environments/environment.local.ts
 
 lint-output.txt
-
-CHANGELOG.md
-CONTRIBUTING.md

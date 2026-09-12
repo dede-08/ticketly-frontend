@@ -9,17 +9,13 @@ import { catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-ticket-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    FormsModule
-  ],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './ticket-list.component.html',
-  styleUrl: './ticket-list.component.css'
+  styleUrl: './ticket-list.component.css',
 })
 export class TicketListComponent implements OnInit {
   private ticketService = inject(TicketService);
-  
+
   tickets = signal<Ticket[]>([]);
   categories = signal<Category[]>([]);
   priorities = signal<Priority[]>([]);
@@ -37,24 +33,32 @@ export class TicketListComponent implements OnInit {
 
   loadData() {
     this.loading.set(true);
-    
+
     forkJoin({
-      tickets: this.ticketService.getTickets().pipe(catchError(err => {
-        console.error('Error loading tickets:', err);
-        return of([]); //devuelve un array vacío en caso de error
-      })),
-      categories: this.ticketService.getCategories().pipe(catchError(err => {
-        console.error('Error loading categories:', err);
-        return of([]);
-      })),
-      priorities: this.ticketService.getPriorities().pipe(catchError(err => {
-        console.error('Error loading priorities:', err);
-        return of([]);
-      })),
-      statuses: this.ticketService.getStatuses().pipe(catchError(err => {
-        console.error('Error loading statuses:', err);
-        return of([]);
-      }))
+      tickets: this.ticketService.getTickets().pipe(
+        catchError((err) => {
+          console.error('Error loading tickets:', err);
+          return of([]); //devuelve un array vacio en caso de error
+        })
+      ),
+      categories: this.ticketService.getCategories().pipe(
+        catchError((err) => {
+          console.error('Error loading categories:', err);
+          return of([]);
+        })
+      ),
+      priorities: this.ticketService.getPriorities().pipe(
+        catchError((err) => {
+          console.error('Error loading priorities:', err);
+          return of([]);
+        })
+      ),
+      statuses: this.ticketService.getStatuses().pipe(
+        catchError((err) => {
+          console.error('Error loading statuses:', err);
+          return of([]);
+        })
+      ),
     }).subscribe({
       next: ({ tickets, categories, priorities, statuses }) => {
         this.tickets.set(tickets || []);
@@ -66,13 +70,13 @@ export class TicketListComponent implements OnInit {
       error: (error) => {
         console.error('Error in forkJoin:', error);
         this.loading.set(false);
-      }
+      },
     });
   }
 
   applyFilters() {
     const params: any = {};
-    
+
     if (this.searchTerm) {
       params.search = this.searchTerm;
     }
@@ -95,20 +99,18 @@ export class TicketListComponent implements OnInit {
       error: (error) => {
         console.error('Error filtering tickets:', error);
         this.loading.set(false);
-      }
+      },
     });
   }
 
   getStatusClass(statusName: string): string {
     const classes: Record<string, string> = {
-      'OPEN': 'bg-blue-100 text-blue-800',
-      'IN_PROGRESS': 'bg-yellow-100 text-yellow-800',
-      'ON_HOLD': 'bg-orange-100 text-orange-800',
-      'RESOLVED': 'bg-green-100 text-green-800',
-      'CLOSED': 'bg-gray-100 text-gray-800'
+      OPEN: 'bg-blue-100 text-blue-800',
+      IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
+      ON_HOLD: 'bg-orange-100 text-orange-800',
+      RESOLVED: 'bg-green-100 text-green-800',
+      CLOSED: 'bg-gray-100 text-gray-800',
     };
     return classes[statusName] || 'bg-gray-100 text-gray-800';
   }
-
-  
 }

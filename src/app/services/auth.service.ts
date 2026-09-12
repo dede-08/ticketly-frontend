@@ -38,7 +38,7 @@ export interface LoginData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
@@ -47,7 +47,7 @@ export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  
+
   isAuthenticated = signal(false);
   currentUser = signal<User | null>(null);
 
@@ -61,10 +61,10 @@ export class AuthService {
   private loadUserFromStorage(): void {
     const token = this.getAccessToken();
     const userStr = localStorage.getItem('current_user');
-    
+
     console.log('Token existe:', !!token);
     console.log('Usuario en storage:', userStr);
-    
+
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
@@ -95,52 +95,49 @@ export class AuthService {
 
   login(credentials: LoginData): Observable<AuthResponse> {
     console.log('Intentando login...');
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login/`, credentials)
-      .pipe(
-        tap(response => {
-          console.log('Login exitoso, tokens recibidos');
-          this.setTokens(response.access, response.refresh);
-          //cargar info del usuario despues del login
-          this.loadUserInfo().subscribe({
-            next: () => console.log('Usuario cargado después del login'),
-            error: (err) => console.error('Error cargando usuario:', err)
-          });
-        })
-      );
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login/`, credentials).pipe(
+      tap((response) => {
+        console.log('Login exitoso, tokens recibidos');
+        this.setTokens(response.access, response.refresh);
+        //cargar info del usuario despues del login
+        this.loadUserInfo().subscribe({
+          next: () => console.log('Usuario cargado después del login'),
+          error: (err) => console.error('Error cargando usuario:', err),
+        });
+      })
+    );
   }
 
   register(userData: RegisterData): Observable<any> {
     console.log('Intentando registro...');
-    return this.http.post(`${this.apiUrl}/register/`, userData)
-      .pipe(
-        tap((response: any) => {
-          if (response.tokens) {
-            console.log('Registro exitoso');
-            this.setTokens(response.tokens.access, response.tokens.refresh);
-            this.currentUser.set(response.user);
-            this.currentUserSubject.next(response.user);
-            this.isAuthenticated.set(true);
-            this.saveUserToStorage(response.user);
-          }
-        })
-      );
+    return this.http.post(`${this.apiUrl}/register/`, userData).pipe(
+      tap((response: any) => {
+        if (response.tokens) {
+          console.log('Registro exitoso');
+          this.setTokens(response.tokens.access, response.tokens.refresh);
+          this.currentUser.set(response.user);
+          this.currentUserSubject.next(response.user);
+          this.isAuthenticated.set(true);
+          this.saveUserToStorage(response.user);
+        }
+      })
+    );
   }
 
   logout(): void {
     const refreshToken = this.getRefreshToken();
-    
+
     if (refreshToken) {
-      this.http.post(`${this.apiUrl}/logout/`, { refresh: refreshToken })
-        .subscribe({
-          next: () => {
-            console.log('Logout exitoso');
-            this.clearSession();
-          },
-          error: () => {
-            console.log('Error en logout, limpiando sesión de todas formas');
-            this.clearSession();
-          }
-        });
+      this.http.post(`${this.apiUrl}/logout/`, { refresh: refreshToken }).subscribe({
+        next: () => {
+          console.log('Logout exitoso');
+          this.clearSession();
+        },
+        error: () => {
+          console.log('Error en logout, limpiando sesión de todas formas');
+          this.clearSession();
+        },
+      });
     } else {
       this.clearSession();
     }
@@ -148,24 +145,24 @@ export class AuthService {
 
   loadUserInfo(): Observable<User | null> {
     console.log('Cargando información del usuario desde API...');
-    
+
     return this.http.get<User>(`${this.apiUrl}/user/`).pipe(
-      tap(user => {
+      tap((user) => {
         console.log('Usuario recibido desde API:', user);
         console.log('first_name:', user.first_name);
         console.log('last_name:', user.last_name);
         console.log('role:', user.role);
-        
+
         this.currentUser.set(user);
         this.currentUserSubject.next(user);
         this.isAuthenticated.set(true);
         this.saveUserToStorage(user);
-        
+
         //verificar si se guardo correctamente
         const saved = localStorage.getItem('current_user');
         console.log('Verificación - Usuario guardado:', saved);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Error al cargar usuario desde API:', error);
         return of(null);
       })
@@ -174,14 +171,16 @@ export class AuthService {
 
   refreshToken(): Observable<AuthResponse> {
     const refreshToken = this.getRefreshToken();
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh/`, {
-      refresh: refreshToken
-    }).pipe(
-      tap(response => {
-        console.log('Token refrescado');
-        this.setAccessToken(response.access);
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/refresh/`, {
+        refresh: refreshToken,
       })
-    );
+      .pipe(
+        tap((response) => {
+          console.log('Token refrescado');
+          this.setAccessToken(response.access);
+        })
+      );
   }
 
   private setTokens(access: string, refresh: string): void {

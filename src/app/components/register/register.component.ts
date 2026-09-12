@@ -7,13 +7,9 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrl: './register.component.css',
 })
 export class RegisterComponent {
   private fb = inject(FormBuilder);
@@ -25,22 +21,25 @@ export class RegisterComponent {
   error = signal('');
 
   constructor() {
-    this.registerForm = this.fb.group({
-      username: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      password2: ['', Validators.required]
-    }, {
-      validators: this.passwordMatchValidator
-    });
+    this.registerForm = this.fb.group(
+      {
+        username: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        first_name: ['', Validators.required],
+        last_name: ['', Validators.required],
+        password: ['', [Validators.required, Validators.minLength(8)]],
+        password2: ['', Validators.required],
+      },
+      {
+        validators: this.passwordMatchValidator,
+      }
+    );
   }
 
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const password2 = form.get('password2');
-    
+
     if (password && password2 && password.value !== password2.value) {
       return { passwordMismatch: true };
     }
@@ -49,7 +48,7 @@ export class RegisterComponent {
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
-      Object.keys(this.registerForm.controls).forEach(key => {
+      Object.keys(this.registerForm.controls).forEach((key) => {
         this.registerForm.get(key)?.markAsTouched();
       });
       return;
@@ -72,7 +71,7 @@ export class RegisterComponent {
           this.error.set('Error al crear la cuenta. Por favor intenta de nuevo.');
         }
         console.error('Register error:', err);
-      }
+      },
     });
   }
 }
