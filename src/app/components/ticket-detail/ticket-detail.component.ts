@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Ticket, TicketService } from '../../services/ticket.service';
+import { LoggerService } from '../../services/logger.service';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -13,8 +15,10 @@ import { Ticket, TicketService } from '../../services/ticket.service';
 })
 export class TicketDetailComponent implements OnInit {
   private ticketService = inject(TicketService);
+  private logger = inject(LoggerService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   ticket = signal<Ticket | null>(null);
   loading = signal(true);
@@ -28,7 +32,7 @@ export class TicketDetailComponent implements OnInit {
   isInternalComment = false;
 
   ngOnInit() {
-    this.route.params.subscribe((params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const id = +params['id'];
       this.loadTicket(id);
     });
@@ -36,16 +40,19 @@ export class TicketDetailComponent implements OnInit {
 
   loadTicket(id: number) {
     this.loading.set(true);
-    this.ticketService.getTicket(id).subscribe({
-      next: (ticket) => {
-        this.ticket.set(ticket);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error loading ticket:', error);
-        this.loading.set(false);
-      },
-    });
+    this.ticketService
+      .getTicket(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (ticket) => {
+          this.ticket.set(ticket);
+          this.loading.set(false);
+        },
+        error: (error) => {
+          this.logger.error('Error loading ticket:', error);
+          this.loading.set(false);
+        },
+      });
   }
 
   //drag & drop handlers
@@ -102,7 +109,7 @@ export class TicketDetailComponent implements OnInit {
       error: (error) => {
         this.uploadingFile.set(false);
         this.uploadError.set(error.error?.error || 'Error al subir el archivo');
-        console.error('Error uploading file:', error);
+        this.logger.error('Error uploading file:', error);
       },
     });
   }
@@ -116,7 +123,7 @@ export class TicketDetailComponent implements OnInit {
           this.loadTicket(this.ticket()!.id);
         },
         error: (error) => {
-          console.error('Error deleting attachment:', error);
+          this.logger.error('Error deleting attachment:', error);
           alert('Error al eliminar el archivo');
         },
       });
@@ -145,7 +152,7 @@ export class TicketDetailComponent implements OnInit {
           this.addingComment.set(false);
         },
         error: (error) => {
-          console.error('Error adding comment:', error);
+          this.logger.error('Error adding comment:', error);
           this.addingComment.set(false);
         },
       });
@@ -160,7 +167,7 @@ export class TicketDetailComponent implements OnInit {
           this.router.navigate(['/tickets']);
         },
         error: (error) => {
-          console.error('Error deleting ticket:', error);
+          this.logger.error('Error deleting ticket:', error);
           alert('Error al eliminar el ticket');
         },
       });

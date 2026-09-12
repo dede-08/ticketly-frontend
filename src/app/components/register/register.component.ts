@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LoggerService } from '../../services/logger.service';
 
 @Component({
   selector: 'app-register',
@@ -14,6 +15,7 @@ import { AuthService } from '../../services/auth.service';
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private logger = inject(LoggerService);
   private router = inject(Router);
 
   registerForm: FormGroup;
@@ -70,7 +72,7 @@ export class RegisterComponent {
         } else {
           this.error.set('Error al crear la cuenta. Por favor intenta de nuevo.');
         }
-        console.error('Register error:', err);
+        this.logger.error('Register error:', err);
       },
     });
   }

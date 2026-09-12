@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { Ticket, TicketService, TicketStatistics } from '../../services/ticket.service';
+import { LoggerService } from '../../services/logger.service';
+import { forkJoin } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -14,18 +17,23 @@ import { filter } from 'rxjs/operators';
 export class DashboardComponent implements OnInit {
   private ticketService = inject(TicketService);
   private router = inject(Router);
+  private logger = inject(LoggerService);
+  private destroyRef = inject(DestroyRef);
 
   statistics = signal<TicketStatistics | null>(null);
   myTickets = signal<Ticket[]>([]);
   assignedTickets = signal<Ticket[]>([]);
   loading = signal(true);
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadDashboardData();
 
     //recargar datos cuando el usuario regresa al dashboard
     this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe((event: NavigationEnd) => {
         if (event.url === '/dashboard' || event.url === '/') {
           this.loadDashboardData();
@@ -33,42 +41,47 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  loadDashboardData() {
+  loadDashboardData(): void {
     this.loading.set(true);
 
-    Promise.all([
-      this.ticketService.getStatistics().toPromise(),
-      this.ticketService.getMyTicketsFiltered().toPromise(),
-      this.ticketService.getAssignedToMe().toPromise(),
-    ])
-      .then(([stats, myTickets, assignedTickets]) => {
-        console.warn('Dashboard Data Loaded:', { stats, myTickets, assignedTickets });
-        this.statistics.set(stats || null);
-        this.myTickets.set(myTickets || []);
-        this.assignedTickets.set(assignedTickets || []);
+    forkJoin({
+      stats: this.ticketService.getStatistics(),
+      myTickets: this.ticketService.getMyTicketsFiltered(),
+      assignedTickets: this.ticketService.getAssignedToMe(),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ stats, myTickets, assignedTickets }) => {
+          this.logger.debug('Dashboard data loaded');
+          this.statistics.set(stats ?? null);
+          this.myTickets.set(myTickets ?? []);
+          this.assignedTickets.set(assignedTickets ?? []);
 
-        if ((assignedTickets || []).length === 0) {
-          console.warn(
-            'No hay tickets asignados con assigned_to_me. Intentando fallback con filtro general asignado...'
-          );
-          this.ticketService
-            .getTickets({ assigned_to_me: 'true' })
-            .toPromise()
-            .then((fallbackAssigned) => {
-              if (fallbackAssigned && fallbackAssigned.length > 0) {
-                this.assignedTickets.set(fallbackAssigned);
-              }
-            })
-            .catch((err) => {
-              console.error('El fallback assigned_to_me también falló:', err);
-            });
-        }
+          if ((assignedTickets ?? []).length === 0) {
+            this.logger.warn(
+              'No hay tickets asignados con assigned_to_me. Intentando fallback con filtro general asignado...'
+            );
+            this.ticketService
+              .getTickets({ assigned_to_me: 'true' })
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                next: (fallbackAssigned) => {
+                  if (fallbackAssigned && fallbackAssigned.length > 0) {
+                    this.assignedTickets.set(fallbackAssigned);
+                  }
+                },
+                error: (err: unknown) => {
+                  this.logger.error('El fallback assigned_to_me también falló:', err);
+                },
+              });
+          }
 
-        this.loading.set(false);
-      })
-      .catch((error) => {
-        console.error('Error loading dashboard data:', error);
-        this.loading.set(false);
+          this.loading.set(false);
+        },
+        error: (error: unknown) => {
+          this.logger.error('Error loading dashboard data:', error);
+          this.loading.set(false);
+        },
       });
   }
 

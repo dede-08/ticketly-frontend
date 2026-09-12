@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { LoggerService } from './logger.service';
 
 export interface PaginatedResponse<T> {
   count: number;
@@ -91,7 +92,7 @@ export interface Ticket {
   updated_at: string;
   resolved_at: string | null;
   closed_at: string | null;
-  attachments: any[];
+  attachments: Attachment[];
   tags: string[];
   comments?: Comment[];
   history?: TicketHistory[];
@@ -124,10 +125,11 @@ export interface TicketStatistics {
 })
 export class TicketService {
   private http = inject(HttpClient);
+  private logger = inject(LoggerService);
   private apiUrl = `${environment.apiUrl}/api`;
 
   //tickets
-  getTickets(params?: any): Observable<Ticket[]> {
+  getTickets(params?: Record<string, string>): Observable<Ticket[]> {
     let httpParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach((key) => {
@@ -172,7 +174,7 @@ export class TicketService {
     return this.http.get<PaginatedResponse<Ticket>>(`${this.apiUrl}/tickets/assigned_to_me/`).pipe(
       map((response) => response.results),
       catchError((error) => {
-        console.warn('assigned_to_me endpoint no disponible, intentando fallback:', error);
+        this.logger.warn('assigned_to_me endpoint no disponible, intentando fallback:', error);
         return this.getTickets({ assigned_to_me: 'true' });
       })
     );
@@ -214,8 +216,8 @@ export class TicketService {
     );
   }
 
-  deleteAttachment(ticketId: number, attachmentId: number): Observable<any> {
-    return this.http.request('delete', `${this.apiUrl}/tickets/${ticketId}/delete_attachment/`, {
+  deleteAttachment(ticketId: number, attachmentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/tickets/${ticketId}/delete_attachment/`, {
       body: { attachment_id: attachmentId },
     });
   }

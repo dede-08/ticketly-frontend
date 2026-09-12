@@ -60,6 +60,13 @@ module.exports = [
     },
   },
   {
+    files: ['**/logger.service.ts'],
+    rules: {
+      // Único sitio donde se permite console.log: queda silenciado en producción
+      'no-console': 'off',
+    },
+  },
+  {
     files: ['**/*.html'],
     languageOptions: {
       parser: require('@angular-eslint/template-parser'),

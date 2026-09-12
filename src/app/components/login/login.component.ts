@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LoggerService } from '../../services/logger.service';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +15,7 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private logger = inject(LoggerService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -52,7 +54,7 @@ export class LoginComponent {
         } else {
           this.error.set('Error al iniciar sesión. Por favor intenta de nuevo.');
         }
-        console.error('Login error:', err);
+        this.logger.error('Login error:', err);
       },
     });
   }

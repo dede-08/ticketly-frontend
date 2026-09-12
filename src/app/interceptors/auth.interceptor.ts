@@ -1,10 +1,12 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { LoggerService } from '../services/logger.service';
 import { catchError, switchMap, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const logger = inject(LoggerService);
   const token = authService.getAccessToken();
 
   //URLs publicas que no necesitan token
@@ -26,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      console.error('Error HTTP:', error.status, error.url);
+      logger.error('Error HTTP:', error.status, error.url);
 
       //si el error es 401 y NO es la peticion de refresh
       if (error.status === 401 && !req.url.includes('/auth/refresh')) {
@@ -34,11 +36,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
         //solo intentar refrescar si tenemos refresh token
         if (refreshToken) {
-          console.warn('Intentando refrescar token...');
+          logger.warn('Intentando refrescar token...');
 
           return authService.refreshToken().pipe(
             switchMap((response) => {
-              console.warn('Token refrescado exitosamente');
+              logger.warn('Token refrescado exitosamente');
               //reintentar la peticion original con el nuevo token
               const clonedReq = req.clone({
                 setHeaders: {
@@ -48,14 +50,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               return next(clonedReq);
             }),
             catchError((refreshError) => {
-              console.error('Error al refrescar token:', refreshError);
+              logger.error('Error al refrescar token:', refreshError);
               //solo cerrar sesion si el refresh token tambien falla
               return throwError(() => refreshError);
             })
           );
         } else {
           //no hay refresh token, cerrar sesion
-          console.warn('No hay refresh token, cerrando sesión');
+          logger.warn('No hay refresh token, cerrando sesión');
           authService.logout();
         }
       }
