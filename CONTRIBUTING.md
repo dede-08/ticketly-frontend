@@ -64,12 +64,11 @@ git push origin feature/mi-feature
 - Funciones con return types explícitos
 
 ```typescript
-// ✅ Bien
+
 export function calculateTotal(items: Item[]): number {
   return items.reduce((sum, item) => sum + item.price, 0);
 }
 
-// ❌ Mal
 export function calculateTotal(items: any): any {
   return items.reduce((sum, item) => sum + item.price, 0);
 }
@@ -83,7 +82,7 @@ export function calculateTotal(items: any): any {
 - Standalone components
 
 ```typescript
-// ✅ Bien
+
 @Component({
   selector: 'app-ticket',
   standalone: true,
@@ -155,7 +154,7 @@ Los commits fallarán linting gracias a Husky. Usa `npm run lint:fix` para corre
 - Abre una discussion en GitHub
 - Abre un issue con etiqueta `question`
 
-¡Gracias por contribuir! 🙏
+¡Gracias por contribuir!
 
 ---
 
