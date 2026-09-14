@@ -1,6 +1,8 @@
 /// <reference types="jasmine" />
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 
 import { TicketFormComponent } from './ticket-form.component';
 
@@ -11,6 +13,7 @@ describe('TicketFormComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TicketFormComponent],
+      providers: [provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TicketFormComponent);

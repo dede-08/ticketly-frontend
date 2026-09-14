@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 
 import { TicketDetailComponent } from './ticket-detail.component';
 
@@ -9,6 +11,7 @@ describe('TicketDetailComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TicketDetailComponent],
+      providers: [provideHttpClientTesting(), provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TicketDetailComponent);
