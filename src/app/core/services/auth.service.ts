@@ -2,46 +2,15 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, BehaviorSubject, catchError, of } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { LoggerService } from './logger.service';
-
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  is_staff?: boolean;
-  is_superuser?: boolean;
-  date_joined?: string;
-  groups?: Array<{ id: number; name: string }>;
-  role?: string;
-  permissions?: string[];
-}
-
-export interface AuthResponse {
-  access: string;
-  refresh: string;
-}
-
-export interface RegisterData {
-  username: string;
-  email: string;
-  password: string;
-  password2: string;
-  first_name: string;
-  last_name: string;
-}
-
-export interface LoginData {
-  username: string;
-  password: string;
-}
-
-export interface RegisterResponse {
-  tokens?: AuthResponse;
-  user?: User;
-}
+import {
+  User,
+  AuthResponse,
+  RegisterData,
+  RegisterResponse,
+  LoginData,
+} from '../../models/auth.model';
 
 @Injectable({
   providedIn: 'root',

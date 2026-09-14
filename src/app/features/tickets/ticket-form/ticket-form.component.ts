@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TicketService } from '../../../core/services/ticket.service';
 import {
-  TicketService,
   User,
   Category,
   Priority,
   Status,
   TicketCreate,
   Ticket,
-} from '../../services/ticket.service';
-import { LoggerService } from '../../services/logger.service';
+} from '../../../models/ticket.model';
+import { LoggerService } from '../../../core/services/logger.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Observable, forkJoin, of } from 'rxjs';

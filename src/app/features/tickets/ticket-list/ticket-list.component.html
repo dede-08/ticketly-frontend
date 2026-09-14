@@ -154,7 +154,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="px-2.5 py-1 inline-flex text-xs font-semibold rounded-md"
-                  [class]="getStatusClass(ticket.status.name)"
+                  [class]="ticket.status.name | appStatusClass"
                 >
                   {{ ticket.status.display_name }}
                 </span>

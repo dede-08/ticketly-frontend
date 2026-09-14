@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { AuthService } from './services/auth.service';
-import { FooterComponent } from './components/footer/footer.component';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { AuthService } from './core/services/auth.service';
+import { FooterComponent } from './shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-root',

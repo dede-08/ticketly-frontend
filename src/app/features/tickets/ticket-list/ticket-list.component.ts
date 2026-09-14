@@ -3,15 +3,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TicketService, Ticket, Category, Priority, Status } from '../../services/ticket.service';
-import { LoggerService } from '../../services/logger.service';
+import { TicketService } from '../../../core/services/ticket.service';
+import { Ticket, Category, Priority, Status } from '../../../models/ticket.model';
+import { LoggerService } from '../../../core/services/logger.service';
+import { StatusClassPipe } from '../../../shared/pipes/status-class.pipe';
 import { forkJoin, of, Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-ticket-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, StatusClassPipe],
   templateUrl: './ticket-list.component.html',
   styleUrl: './ticket-list.component.css',
 })
@@ -121,16 +123,5 @@ export class TicketListComponent implements OnInit {
           this.loading.set(false);
         },
       });
-  }
-
-  getStatusClass(statusName: string): string {
-    const classes: Record<string, string> = {
-      OPEN: 'bg-blue-100 text-blue-800',
-      IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-      ON_HOLD: 'bg-orange-100 text-orange-800',
-      RESOLVED: 'bg-green-100 text-green-800',
-      CLOSED: 'bg-gray-100 text-gray-800',
-    };
-    return classes[statusName] || 'bg-gray-100 text-gray-800';
   }
 }

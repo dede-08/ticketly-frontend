@@ -3,13 +3,15 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Ticket, TicketService } from '../../services/ticket.service';
-import { LoggerService } from '../../services/logger.service';
+import { TicketService } from '../../../core/services/ticket.service';
+import { Ticket } from '../../../models/ticket.model';
+import { LoggerService } from '../../../core/services/logger.service';
+import { StatusClassPipe } from '../../../shared/pipes/status-class.pipe';
 
 @Component({
   selector: 'app-ticket-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, StatusClassPipe],
   templateUrl: './ticket-detail.component.html',
   styleUrl: './ticket-detail.component.css',
 })
@@ -172,17 +174,6 @@ export class TicketDetailComponent implements OnInit {
         },
       });
     }
-  }
-
-  getStatusClass(statusName: string): string {
-    const classes: Record<string, string> = {
-      OPEN: 'bg-blue-100 text-blue-800',
-      IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-      ON_HOLD: 'bg-orange-100 text-orange-800',
-      RESOLVED: 'bg-green-100 text-green-800',
-      CLOSED: 'bg-gray-100 text-gray-800',
-    };
-    return classes[statusName] || 'bg-gray-100 text-gray-800';
   }
 
   getFieldLabel(fieldName: string): string {

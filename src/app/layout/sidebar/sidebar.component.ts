@@ -1,13 +1,14 @@
 import { Component, effect, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { LoggerService } from '../../services/logger.service';
+import { AuthService } from '../../core/services/auth.service';
+import { LoggerService } from '../../core/services/logger.service';
+import { RoleBadgeComponent } from '../../shared/components/role-badge/role-badge.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule, CommonModule, RoleBadgeComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })

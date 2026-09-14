@@ -2,15 +2,18 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
-import { Ticket, TicketService, TicketStatistics } from '../../services/ticket.service';
-import { LoggerService } from '../../services/logger.service';
+import { TicketService } from '../../../core/services/ticket.service';
+import { Ticket, TicketStatistics } from '../../../models/ticket.model';
+import { LoggerService } from '../../../core/services/logger.service';
+import { StatusClassPipe } from '../../../shared/pipes/status-class.pipe';
+import { PriorityLabelPipe } from '../../../shared/pipes/priority-label.pipe';
 import { forkJoin } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, StatusClassPipe, PriorityLabelPipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -83,26 +86,5 @@ export class DashboardComponent implements OnInit {
           this.loading.set(false);
         },
       });
-  }
-
-  getPriorityLabel(priorityName: string): string {
-    const labels: Record<string, string> = {
-      LOW: 'Baja',
-      MEDIUM: 'Media',
-      HIGH: 'Alta',
-      CRITICAL: 'Crítica',
-    };
-    return labels[priorityName] || priorityName;
-  }
-
-  getStatusClass(statusName: string): string {
-    const classes: Record<string, string> = {
-      OPEN: 'bg-blue-100 text-blue-800',
-      IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
-      ON_HOLD: 'bg-orange-100 text-orange-800',
-      RESOLVED: 'bg-green-100 text-green-800',
-      CLOSED: 'bg-gray-100 text-gray-800',
-    };
-    return classes[statusName] || 'bg-gray-100 text-gray-800';
   }
 }
