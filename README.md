@@ -1,6 +1,6 @@
 # Ticketly Frontend
 
-Una aplicación Angular moderna y escalable para gestión de tickets. Construida con Angular 19, TypeScript y Tailwind CSS.
+Una aplicación Angular moderna y escalable para gestión de tickets. Construida con Angular 21, TypeScript y Tailwind CSS.
 
 ## Características
 
@@ -15,9 +15,9 @@ Una aplicación Angular moderna y escalable para gestión de tickets. Construida
 
 ## Requisitos
 
-- Node.js ^20.18.0
+- Node.js ^22.12.0 (ver `.nvmrc`)
 - npm ^11.0.0
-- Angular CLI 19.x
+- Angular CLI 21.x
 
 
 ## Comandos principales

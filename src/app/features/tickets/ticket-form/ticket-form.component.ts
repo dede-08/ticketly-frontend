@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TicketService } from '../../../core/services/ticket.service';
@@ -19,7 +18,7 @@ import { catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-ticket-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './ticket-form.component.html',
   styleUrl: './ticket-form.component.css',
 })
