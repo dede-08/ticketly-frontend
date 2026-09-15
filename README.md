@@ -62,7 +62,7 @@ src/
 │   │   └── tickets/           # list, form, detail
 │   ├── shared/                # Reutilizable: pipes y componentes
 │   │   ├── pipes/
-│   │   └── components/        # footer, role-badge, confirm-dialog
+│   │   └── components/        # footer, confirm-dialog
 │   ├── layout/                # sidebar
 │   ├── models/                # Interfaces (auth, ticket)
 │   ├── app.routes.ts          # Rutas

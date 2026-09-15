@@ -3,12 +3,12 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LoggerService } from '../../core/services/logger.service';
 import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
-import { RoleBadgeComponent } from '../../shared/components/role-badge/role-badge.component';
+import { RoleColorPipe } from '../../shared/pipes/role-color.pipe';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, RoleBadgeComponent],
+  imports: [RouterModule, RoleColorPipe],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css',
 })

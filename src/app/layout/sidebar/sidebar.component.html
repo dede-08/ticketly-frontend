@@ -44,8 +44,14 @@
           </span>
         </div>
       </div>
-      <div class="flex justify-center">
-        <app-role-badge />
+      <div class="flex items-center gap-2 px-2">
+        <span
+          class="w-2.5 h-2.5 rounded-full shrink-0"
+          [class]="authService.currentUser() | appRoleColor"
+        ></span>
+        <span class="text-xs font-medium text-slate-500 truncate">
+          {{ authService.currentUser()!.role || 'Usuario' }}
+        </span>
       </div>
     </div>
   } @else {
