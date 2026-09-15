@@ -1,7 +1,5 @@
 // Karma configuration for ticketly-frontend.
 // Run with: npm run test:ci
-// NOTE: no coverage thresholds yet (specs are still scaffolding).
-// Add e.g. check: { global: { statements: 80, branches: 80 } } once real tests exist.
 module.exports = function (config) {
   config.set({
     basePath: '',
@@ -21,6 +19,14 @@ module.exports = function (config) {
       dir: require('path').join(__dirname, './coverage/ticketly-frontend'),
       subdir: '.',
       reporters: [{ type: 'html' }, { type: 'text-summary' }],
+      check: {
+        global: {
+          statements: 50,
+          branches: 30,
+          functions: 45,
+          lines: 50,
+        },
+      },
     },
     reporters: ['progress', 'kjhtml'],
     browsers: ['Chrome'],
