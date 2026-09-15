@@ -1,5 +1,6 @@
 <div
   class="sidebar h-screen w-64 bg-white fixed left-0 top-0 flex flex-col z-10 border-r border-slate-200"
+  [class.open]="open()"
 >
   <!-- Logo -->
   <div class="p-4 border-b border-gray-200">
@@ -57,7 +58,7 @@
   <div class="p-4 space-y-3 border-t border-slate-100">
     <button
       routerLink="/tickets/new"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors font-medium shadow-sm hover:shadow text-sm flex items-center justify-center gap-2"
+      class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors font-medium shadow-xs hover:shadow-sm text-sm flex items-center justify-center gap-2"
     >
       <span class="material-symbols-outlined text-sm">add</span>
       Nuevo Ticket
