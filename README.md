@@ -19,7 +19,6 @@ Una aplicación Angular moderna y escalable para gestión de tickets. Construida
 - npm ^11.0.0
 - Angular CLI 21.x
 
-
 ## Comandos principales
 
 ```bash
@@ -53,12 +52,21 @@ npm run watch
 ```
 src/
 ├── app/
-│   ├── components/          # Componentes UI
-│   ├── services/            # Servicios HTTP
-│   ├── guards/              # Route guards
-│   ├── interceptors/        # HTTP interceptors
-│   ├── app.routes.ts        # Rutas
-│   └── app.config.ts        # Configuración
+│   ├── core/                  # Servicios, guards e interceptors (singletons)
+│   │   ├── services/
+│   │   ├── guards/
+│   │   └── interceptors/
+│   ├── features/              # Páginas por dominio (lazy-loaded)
+│   │   ├── auth/              # login, register
+│   │   ├── dashboard/
+│   │   └── tickets/           # list, form, detail
+│   ├── shared/                # Reutilizable: pipes y componentes
+│   │   ├── pipes/
+│   │   └── components/        # footer, role-badge, confirm-dialog
+│   ├── layout/                # sidebar
+│   ├── models/                # Interfaces (auth, ticket)
+│   ├── app.routes.ts          # Rutas
+│   └── app.config.ts          # Configuración
 ├── assets/                  # Recursos estáticos
 └── environments/            # Configuración por ambiente
 ```
@@ -70,11 +78,11 @@ Utiliza tokens JWT. Los tokens se guardan en localStorage y se envían automáti
 ## Testing
 
 ```bash
-npm run test                           # Ejecutar tests
+npm run test:ci                       # Tests + coverage (como en CI)
 npm run test -- --watch               # Modo watch
-npm run test -- --code-coverage       # Con coverage
 ```
 
+Coverage mínimo exigido en `karma.conf.js` (statements 50%, branches 30%).
 
 ## Licencia
 
@@ -82,7 +90,7 @@ MIT
 
 ---
 
-Última actualización: Diciembre 2025
+Última actualización: Enero 2026
 
 ## Running end-to-end tests
 

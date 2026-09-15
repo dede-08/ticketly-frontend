@@ -1,7 +1,8 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, input, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LoggerService } from '../../core/services/logger.service';
+import { ConfirmDialogService } from '../../shared/components/confirm-dialog/confirm-dialog.service';
 import { RoleBadgeComponent } from '../../shared/components/role-badge/role-badge.component';
 
 @Component({
@@ -14,6 +15,10 @@ import { RoleBadgeComponent } from '../../shared/components/role-badge/role-badg
 export class SidebarComponent implements OnInit {
   authService = inject(AuthService);
   private logger = inject(LoggerService);
+  private confirmDialog = inject(ConfirmDialogService);
+
+  /** En móvil el sidebar es off-canvas y se muestra solo cuando open es true. */
+  open = input(false);
 
   constructor() {
     //effect para detectar cambios en currentUser (sin registrar datos personales)
@@ -32,8 +37,13 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  logout(): void {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+  async logout(): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm(
+      'Cerrar sesión',
+      '¿Estás seguro de que deseas cerrar sesión?',
+      'Cerrar sesión'
+    );
+    if (confirmed) {
       this.authService.logout();
     }
   }

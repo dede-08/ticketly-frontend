@@ -25,6 +25,7 @@ module.exports = [
         expect: 'readonly',
         jasmine: 'readonly',
         DoneFn: 'readonly',
+        expectAsync: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
         window: 'readonly',

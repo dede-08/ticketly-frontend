@@ -1,7 +1,22 @@
 <div class="min-h-screen bg-slate-50 flex">
   <!-- Sidebar solo si está autenticado -->
   @if (authService.isAuthenticated()) {
-    <app-sidebar />
+    <app-sidebar [open]="sidebarOpen()" />
+
+    <!-- Botón hamburguesa solo en móvil -->
+    <button
+      type="button"
+      (click)="toggleSidebar()"
+      aria-label="Abrir menú"
+      class="md:hidden fixed top-4 left-4 z-20 p-2 bg-white border border-slate-200 rounded-md shadow-sm text-slate-700"
+    >
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+
+    <!-- Overlay para cerrar el menú móvil -->
+    @if (sidebarOpen()) {
+      <div class="md:hidden fixed inset-0 z-[5] bg-slate-900/40" (click)="closeSidebar()"></div>
+    }
   }
 
   <!-- Main Content -->
@@ -15,4 +30,7 @@
       <app-footer />
     }
   </div>
+
+  <!-- Diálogo de confirmación global -->
+  <app-confirm-dialog />
 </div>

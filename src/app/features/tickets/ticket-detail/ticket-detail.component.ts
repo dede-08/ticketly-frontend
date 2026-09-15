@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TicketService } from '../../../core/services/ticket.service';
 import { Ticket } from '../../../models/ticket.model';
 import { LoggerService } from '../../../core/services/logger.service';
+import { ConfirmDialogService } from '../../../shared/components/confirm-dialog/confirm-dialog.service';
 import { StatusClassPipe } from '../../../shared/pipes/status-class.pipe';
 
 @Component({
@@ -18,6 +19,7 @@ import { StatusClassPipe } from '../../../shared/pipes/status-class.pipe';
 export class TicketDetailComponent implements OnInit {
   private ticketService = inject(TicketService);
   private logger = inject(LoggerService);
+  private confirmDialog = inject(ConfirmDialogService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
@@ -27,6 +29,7 @@ export class TicketDetailComponent implements OnInit {
   addingComment = signal(false);
   uploadingFile = signal(false);
   uploadError = signal('');
+  actionError = signal('');
   isDragging = signal(false);
   imagePreviewUrl = signal<string | null>(null);
 
@@ -116,20 +119,26 @@ export class TicketDetailComponent implements OnInit {
     });
   }
 
-  deleteAttachment(attachmentId: number): void {
+  async deleteAttachment(attachmentId: number): Promise<void> {
     if (!this.ticket()) return;
 
-    if (confirm('¿Estás seguro de eliminar este archivo?')) {
-      this.ticketService.deleteAttachment(this.ticket()!.id, attachmentId).subscribe({
-        next: () => {
-          this.loadTicket(this.ticket()!.id);
-        },
-        error: (error) => {
-          this.logger.error('Error deleting attachment:', error);
-          alert('Error al eliminar el archivo');
-        },
-      });
-    }
+    const confirmed = await this.confirmDialog.confirm(
+      'Eliminar archivo',
+      '¿Estás seguro de eliminar este archivo?',
+      'Eliminar'
+    );
+    if (!confirmed) return;
+
+    this.ticketService.deleteAttachment(this.ticket()!.id, attachmentId).subscribe({
+      next: () => {
+        this.actionError.set('');
+        this.loadTicket(this.ticket()!.id);
+      },
+      error: (error) => {
+        this.logger.error('Error deleting attachment:', error);
+        this.actionError.set('Error al eliminar el archivo');
+      },
+    });
   }
 
   viewImage(url: string) {
@@ -160,20 +169,25 @@ export class TicketDetailComponent implements OnInit {
       });
   }
 
-  deleteTicket() {
+  async deleteTicket(): Promise<void> {
     if (!this.ticket()) return;
 
-    if (confirm('¿Estás seguro de que deseas eliminar este ticket?')) {
-      this.ticketService.deleteTicket(this.ticket()!.id).subscribe({
-        next: () => {
-          this.router.navigate(['/tickets']);
-        },
-        error: (error) => {
-          this.logger.error('Error deleting ticket:', error);
-          alert('Error al eliminar el ticket');
-        },
-      });
-    }
+    const confirmed = await this.confirmDialog.confirm(
+      'Eliminar ticket',
+      '¿Estás seguro de que deseas eliminar este ticket?',
+      'Eliminar'
+    );
+    if (!confirmed) return;
+
+    this.ticketService.deleteTicket(this.ticket()!.id).subscribe({
+      next: () => {
+        this.router.navigate(['/tickets']);
+      },
+      error: (error) => {
+        this.logger.error('Error deleting ticket:', error);
+        this.actionError.set('Error al eliminar el ticket');
+      },
+    });
   }
 
   getFieldLabel(fieldName: string): string {
